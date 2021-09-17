@@ -1,0 +1,35 @@
+---
+title: "MADA Project_UOWN"
+author: "C. Coleman"
+date: "9/16/2021"
+output: html_document
+---
+
+#Briefly describe what the data is, how it was collected, where you will get (or got) it from. How many observations do you have, what was measured? Anything else important to report about the data?
+
+#The data I am using is a mixture of Upper Oconee Watershed Network (UOWN) publically avaialable data and data available on the UOWN ShinyApp. This data is part of a citizen science training effort for routine watershed-scale monitoring of the upper oconee river watershed. Trained freshwater scientists assist in training members of the community to collect both chemical and biological stream characteristics that are useful in describing stream health. All data is compliled and posted in raw form on the UOWN website. Of interest to me are the following variables: WSID (ID number),	biological_score,	conductivity, turbidity,	po4.mgL,	no3.mgL,	pH,	temperature,	e.coli.cfu,	month,	year,	day. The raw data shows 3,075 observations before cleaning.
+
+#Load import packages:
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+#Lodaing data and providing a summary for the raw data
+```{r}
+data_location <- here::here("data","raw_data","UOWN_data_master_spring2021 (2).xlsx")
+
+rawdata <- readxl::read_excel(data_location)
+```
+
+
+#Explain the question you want to answer using the data. What will be your outcome(s) of interest (if any)? What (if any) specific predictors will you focus on? What relations/patterns are you looking for in the data?
+
+#When monitoring freshwater streams, stream health is typically measured by its physical charachteristics (chemistry, surrounding land use area, channelication, etc.); Microbial (fecal indicator), and ecology (diversity of indicator macroinvertebrates). However, these thre categories are usually analyzed separately to assess stream health. As such, my question is how well are these parameters correleated with each other. Specifically, can you use one of the indicators mentioned (physical, microbial, and ecological) to describe both of the others to make a statement about overall stream health?
+
+I would expect that because the all three are correlated with urbanization/anthropocentric impact, a negative impact in on indicator category will indicate a correlated negative impact in the other categories. The only caveat is that because level of noise in stream health data, significant correlations may be difficult to find.
+
+#As much as you know, suggest how you will analyze it. At this stage in the course, we haven’t covered analysis approaches yet, so you can keep things vague and non-technical here.
+
+UOWN has provided a great deal of data dating back to 2003. First,I will analyze and compare trends in the change of chemical (conductivity, turbidity,	po4.mgL,	no3.mgL); ecological(Biological Score); and microbial indicator data (e.coli CFU). Generally speaking, Increases in chemical properties like conductivity, turbidity,	po4.mgL,	no3.mgL and microbial indicator abundance (i.e. ecoli CFU) indicate decreased stream health. While a decrease in biological score indicates decrease in stream health. Next, since biological scores are used as a measure of broader ecological health, I will run t-tests on if the other factors significantly effect biological score. Finally, I will test the interaction of all three vie multivariate analysis.
+
