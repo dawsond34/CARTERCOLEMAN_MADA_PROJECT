@@ -4,63 +4,133 @@
 #this script loads the raw data, processes and cleans it 
 #and saves it as Rds file in the processed_data folder
 
-#load needed packages. make sure they are installed.
-library(readxl) #for loading Excel files
-library(dplyr) #for data processing
-library(here) #to set paths
+#load needed packages. Install any that need to be installed.
+
+library(readxl) 
+library(dplyr) 
+library(here)
+library(tidyverse)
+library(tidyr)
+library(readr)
+library(stringr)
+library(naniar)
 
 #path to data
 #note the use of the here() package and not absolute paths
-data_location <- here::here("data","raw_data","exampledata.xlsx")
+data_location <- here::here("data","raw_data","UOWN_data_master_spring2021 (2).xlsx")
 
 #load data. 
-#note that for functions that come from specific packages (instead of base R)
-# I often specify both package and function like so
-#package::function() that's not required one could just call the function
-#specifying the package makes it clearer where the function "lives",
-#but it adds typing. You can do it either way.
 rawdata <- readxl::read_excel(data_location)
 
 #take a look at the data
 dplyr::glimpse(rawdata)
 
-#dataset is so small, we can print it to the screen.
-#that is often not possible.
+#or
+
 print(rawdata)
 
-# looks like we have measurements for height (in centimeters) and weight (in kilogram)
+#I had to do a little digging, but it looks like R has not registered values
+#designated "NA" as true missing values. We will have to fix that real quick.
 
-# there are some problems with the data: 
-# There is an entry which says "sixty" instead of a number. 
-# Does that mean it should be a numeric 60? It somehow doesn't make
-# sense since the weight is 60kg, which can't happen for a 60cm person (a baby)
-# Since we don't know how to fix this, we need to remove the person.
-# This "sixty" entry also turned all Height entries into characters instead of numeric.
-# We need to fix that too.
-# Then there is one person with a height of 6. 
-# that could be a typo, or someone mistakenly entered their height in feet.
-# Since we unfortunately don't know, we'll have to remove this person.
-# similarly, there is a person with weight of 7000, which is impossible,
-# and one person with missing weight.
-# to be able to analyze the data, we'll remove those 5 individuals
+rawdata <- rawdata %>%
+  replace_with_na(replace = list(WSID = "NA",	
+                                 biological_score = "NA",	
+                                 conductivity.uscm = "NA", 
+                                 turbidity.ntu = "NA",	
+                                 po4.mgL = "NA",	
+                                 no3.mgL = "NA",	
+                                 pH = "NA",	
+                                 temperature.c = "NA",	
+                                 e.coli.cfu = "NA",	
+                                 month = "NA",	
+                                 year = "NA",	
+                                 day = "NA"))
 
-# this is one way of doing it. Note that if the data gets updated, 
-# we need to decide if the thresholds are ok (newborns could be <50)
+#Let's do some cleaning. First we need to grab the variables we want to work with.
+data_cleaning <- rawdata %>%
+  select("WSID",	
+         "biological_score",	
+         "conductivity.uscm", 
+         "turbidity.ntu",	
+         "po4.mgL",	"no3.mgL",	
+         "pH",	
+         "temperature.c",	
+         "e.coli.cfu",	
+         "month",	
+         "year",	
+         "day")
 
-processeddata <- rawdata %>% dplyr::filter( Height != "sixty" ) %>% 
-                             dplyr::mutate(Height = as.numeric(Height)) %>% 
-                             dplyr::filter(Height > 50 & Weight < 1000)
+glimpse(data_cleaning)
 
-# save data as RDS
-# I suggest you save your processed and cleaned data as RDS or RDA/Rdata files. 
-# This preserves coding like factors, characters, numeric, etc. 
-# If you save as CSV, that information would get lost.
-# See here for some suggestions on how to store your processed data:
-# http://www.sthda.com/english/wiki/saving-data-into-r-data-format-rds-and-rdata
+#There is 3,075 rows and 12 columns... So, a lot of data. This is because data
+#has been collected for ~20 years. Unfortunately, I am seeing a lot of NA's in 
+#the data. Because this is citizen science monitoring data, NA most likely means
+#the data wasn't collected during that event and is a form of human error bias.
 
-# location to save file
-save_data_location <- here::here("data","processed_data","processeddata.rds")
+#Let's take a look at the the NA's by each variable.
 
-saveRDS(processeddata, file = save_data_location)
+is_na <- as.data.frame(colSums(is.na(data_cleaning)))
+view(is_na)
+
+#Unfortunately, several of the columns have more than half of the data missing.
+#This is pretty common for citizen science data, seeing as collection is 
+#opportunistic
+#Let's P04 and temperature, because they are missing a lot of data. Then, we can
+#remove all missing values and see if there is any data left.
+
+data_cleaning <- data_cleaning %>%
+  select(-"po4.mgL", -"temperature.c") 
+
+data_cleaning <- data_cleaning %>%
+  na.omit(data_cleaning)
+  
+#Now we need to make sure all numeric columns are read as numeric instead of character
+
+data_cleaning$biological_score <- as.numeric(data_cleaning$biological_score)
+
+data_cleaning$conductivity.uscm <- as.numeric(data_cleaning$conductivity.uscm)
+
+data_cleaning$turbidity.ntu = as.numeric(data_cleaning$turbidity.ntu)
+
+data_cleaning$no3.mgL = as.numeric(data_cleaning$no3.mgL)
+
+data_cleaning$pH = as.numeric(data_cleaning$pH)
+
+data_cleaning$e.coli.cfu = as.numeric(data_cleaning$e.coli.cfu)
+                           
+summary(data_cleaning)
+
+#Now, separate the data_cleaning df into three separate dfs based on location ID.
+#These dfs will be: "MIDO", "NORO", and "BICO".
+#This is to separate out any bias based on location of the streams within ACC.
+
+data_cleaning$stream_ID = substr(data_cleaning$WSID,1,4)
+
+MIDO <- data_cleaning %>%
+  filter( , stream_ID == "MIDO")
+
+NORO <- data_cleaning %>%
+  filter( , stream_ID == "NORO")
+
+BICO <- data_cleaning %>%
+  filter( , stream_ID == "BICO")
+
+summary(MIDO)
+summary(NORO)
+summary(BICO)
+
+#Now, because the number of rows between each site data frame and between years
+#is not consistent, measuring between sites and through time maybe a little biased.
+#That being said, my original question refers to the correlation between different
+#indicators of stream health, not how they change spatial or temporally.
+#Therefore, these space and time inconsistencies won't affect the analyses.
+
+#At last, we can start exploring our cleaned data!
+#See "analysis_code" folder for exploratory analysis.
+
+#Save files
+saveRDS(MIDO, "../../data/processed_data/MIDO.rds")
+saveRDS(NORO, "../../data/processed_data/NORO.rds")
+saveRDS(BICO, "../../data/processed_data/BICO.rds")
 
 

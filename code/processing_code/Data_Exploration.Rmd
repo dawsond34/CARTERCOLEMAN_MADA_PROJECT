@@ -1,0 +1,564 @@
+---
+title: "Data Exploration"
+author: "C. Coleman"
+date: "10/7/2021"
+output: word_document
+---
+
+# The following is an exploration of Stream Health Indicator correlation and comparison. The exploration will be structured as follows:
+### Each dataframe (MIDO, NORO, and BICO) will be analyzed separately. Within each dataframe, there are data explaining biological indicator values, stream chemistry, and fecal indicators over time. The only group with multiple components is stream chemistry. I plan to do a series of correlative analysis showing if there is some sort of relationship between the three indicator types to help inform further analysis via principle component, multivariate analysis, etc. Therfore, the goal of this exploration is basically to summarize how these indicators correlate.
+
+</br>
+
+#### First, we need to load all the libraries we will need.
+```{r}
+library(dplyr) 
+library(here)
+library(tidyverse)
+library(tidyr)
+library(readr)
+library(stringr)
+```
+
+#### Loading the data from the processing script. Note that because you are loading a library at the beginning, it may either take a while or take several tries.
+```{r}
+MIDO <- readRDS("../../data/processed_data/MIDO.rds")
+NORO <- readRDS("../../data/processed_data/NORO.rds")
+BICO <- readRDS("../../data/processed_data/BICO.rds")
+```
+ <- source("processingscript.R", local = knitr::knit_global())
+
+#### take a look at the data frames to make sure everything worked correctly.
+```{r}
+view(MIDO)
+view(NORO)
+view(BICO)
+```
+
+</br>
+
+## MIDO
+
+</br>
+
+### *Biological Indicator:*
+
+#### Biological Vs Conductivity
+```{r}
+BS_Con <- MIDO %>% 
+  ggplot(aes(x=(conductivity.uscm), 
+             y=(biological_score))) +
+  geom_point(color = "red") +
+  geom_smooth(method=lm, color = "red") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+print(BS_Con)
+```
+
+#### Now run linear regression for BS_Con.
+```{r}
+BS_Con_lm <- lm(biological_score ~ conductivity.uscm, data=MIDO)
+
+summary(BS_Con_lm)
+```
+
+#### With *m = -0.017* and *p = 0.49*, there is a *negative*, *non-significant* correlation between *biological score* and *conductivity*.
+
+</br>
+
+#### Biological Vs Turbidity
+```{r}
+BS_Turb <- MIDO %>%
+  ggplot(aes(x=turbidity.ntu, y=biological_score)) +
+  geom_point(color = "blue") +
+   geom_smooth(method=lm, color = "blue") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+
+print(BS_Turb)
+```
+
+#### Now run linear regression for BS_Turb.
+```{r}
+BS_Turb_lm <- lm(biological_score ~ turbidity.ntu, data=MIDO)
+
+summary(BS_Turb_lm)
+```
+#### With *m = 0.11* and *p = 0.13*, there is a *positive*, *non-significant* correlation between *biological score* and *turbidity*.
+
+</br>
+
+#### Biological Vs Nitrate Concentration
+```{r}
+BS_no3 <- MIDO %>%
+  ggplot(aes(x=no3.mgL, y=biological_score)) +
+  geom_point(color = "green") +
+   geom_smooth(method=lm, color = "green") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+
+print(BS_no3)
+```
+
+#### Now run linear regression for BS_no3.
+```{r}
+BS_no3_lm <- lm(biological_score ~ no3.mgL, data=MIDO)
+
+summary(BS_no3_lm)
+```
+
+#### With *m = 0.11* and *p = 0.27*, there is a *positive*, *non-significant* correlation between *biological score* and *no3*.
+
+</br>
+
+#### Biological Vs E. Coli CFU
+```{r}
+BS_ECFU <- MIDO %>%
+  ggplot(aes(x=e.coli.cfu, y=biological_score)) +
+  geom_point(color = "purple") +
+   geom_smooth(method=lm, color = "purple") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+
+print(BS_ECFU)
+```
+
+#### Now run linear regression for BS_ECFU.
+```{r}
+BS_ECFU_lm <- lm(biological_score ~ e.coli.cfu, data=MIDO)
+
+summary(BS_ECFU_lm)
+```
+#### With *m = -0.0007* and *p = 0.39*, there really isn't a relationship at all between *biological score* and *ECFU*.
+
+</br>
+
+### *E. Coli*
+</br>
+#### E. Coli Vs Conductivity
+```{r}
+ECFU_Con <- MIDO %>%
+  ggplot(aes(x=conductivity.uscm, y=e.coli.cfu)) +
+  geom_point(color = "orange") +
+   geom_smooth(method=lm, color = "orange") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+
+print(ECFU_Con)
+```
+
+#### Now run linear regression for ECFU_Con.
+```{r}
+ECFU_Con_lm <- lm(e.coli.cfu ~ conductivity.uscm, data=MIDO)
+
+summary(ECFU_Con_lm)
+```
+#### With *m = -3.635* and *p = 0.28*, there is a *negative*, *non-significant* correlation between *ECFU* and *Conductivity*.
+
+</br>
+
+#### E. Coli Vs Turbidity
+```{r}
+ECFU_Turb <- MIDO %>%
+  ggplot(aes(x=turbidity.ntu, y=e.coli.cfu)) +
+  geom_point(color = "black") +
+   geom_smooth(method=lm, color = "black") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+
+print(ECFU_Turb)
+```
+
+#### Now run linear regression for ECFU_Turb.
+```{r}
+ECFU_Turb_lm <- lm(e.coli.cfu ~ turbidity.ntu, data=MIDO)
+
+summary(ECFU_Turb_lm)
+```
+#### With *m = 18.6* and *p = 0.07*, there is a *positive*, *non-significant* correlation between *ECFU* and *turbidity*.
+
+</br>
+
+#### E. Coli Vs Nitrate Concentration
+```{r}
+ECFU_no3 <- MIDO %>%
+  ggplot(aes(x=no3.mgL, y=e.coli.cfu)) +
+  geom_point(color = "black") +
+   geom_smooth(method=lm, color = "black") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+
+print(ECFU_no3)
+```
+
+#### Now run linear regression for ECFU_no3.
+```{r}
+ECFU_no3_lm <- lm(e.coli.cfu ~ no3.mgL, data=MIDO)
+
+summary(ECFU_no3_lm)
+```
+
+#### With *m = -10.61* and *p = 0.60*, there is a *negative*, *non-significant* correlation between *ECFU* and *no3*.
+
+</br>
+
+## NORO
+
+</br>
+
+### *Biological Indicator:*
+
+#### Biological Vs Conductivity
+```{r}
+N_BS_Con <- NORO %>%
+  ggplot(aes(x=conductivity.uscm, y=biological_score)) +
+  geom_point(color = "red") +
+   geom_smooth(method=lm, color = "red") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+
+print(N_BS_Con)
+```
+
+#### Now run linear regression for N_BS_Con.
+```{r}
+N_BS_Con_lm <- lm(biological_score ~ conductivity.uscm, data=NORO)
+
+summary(N_BS_Con_lm)
+```
+
+#### With *m = -0.023* and *p = 0.0004*, there is a *negative*, *significant* correlation between *biological score* and *conductivity*.
+
+</br>
+
+#### Biological Vs Turbidity
+```{r}
+N_BS_Turb <- NORO %>%
+  ggplot(aes(x=turbidity.ntu, y=biological_score)) +
+  geom_point(color = "blue") +
+   geom_smooth(method=lm, color = "blue") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+
+print(N_BS_Turb)
+```
+
+#### Now run linear regression for N_BS_Turb.
+```{r}
+N_BS_Turb_lm <- lm(biological_score ~ turbidity.ntu, data=NORO)
+
+summary(N_BS_Turb_lm)
+```
+
+#### With *m = 0.17* and *p = 0.45*, there is a *positive*, *non-significant* correlation between *bilogical score* and *turbidity*.
+
+</br>
+
+#### Biological Vs Nitrate Concentration
+```{r}
+N_BS_no3 <- NORO %>%
+  ggplot(aes(x=no3.mgL, y=biological_score)) +
+  geom_point(color = "green") +
+   geom_smooth(method=lm, color = "green") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+
+print(N_BS_no3)
+```
+
+#### Now run linear regression for N_BS_no3.
+```{r}
+N_BS_no3_lm <- lm(biological_score ~ no3.mgL, data=NORO)
+
+summary(N_BS_no3_lm)
+```
+
+#### With *m = -0.56* and *p = 0.08*, there is a *negative*, *non-significant* correlation between *biological score* and *no3*.
+
+</br>
+
+#### Biological Vs E. Coli CFU
+```{r}
+N_BS_ECFU <- NORO %>%
+  ggplot(aes(x=e.coli.cfu, y=biological_score)) +
+  geom_point(color = "purple") +
+   geom_smooth(method=lm, color = "purple") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+
+print(N_BS_ECFU)
+```
+
+#### Now run linear regression for N_BS_ECFU.
+```{r}
+N_BS_ECFU_lm <- lm(biological_score ~ e.coli.cfu, data=NORO)
+
+summary(N_BS_ECFU_lm)
+```
+
+#### With *m = 7.274e-05* and *p = 0.69*, there is not relationship between *Bbiological score* and *ECFU*.
+
+</br>
+
+### *E. Coli*
+</br>
+#### E. Coli Vs Conductivity
+```{r}
+N_ECFU_Con <- NORO %>%
+  ggplot(aes(x=conductivity.uscm, y=e.coli.cfu)) +
+  geom_point(color = "orange") +
+   geom_smooth(method=lm, color = "orange") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+
+print(N_ECFU_Con)
+```
+
+#### Now run linear regression for N_ECFU_Con.
+```{r}
+N_ECFU_Con_lm <- lm(e.coli.cfu ~ conductivity.uscm, data=NORO)
+
+summary(N_ECFU_Con_lm)
+```
+
+#### With *m = -8.632* and *p = 0.20*, there is a *negative*, *non-significant* correlation between *ECFU* and *conductivity*.
+
+</br>
+
+#### E. Coli Vs Turbidity
+```{r}
+N_ECFU_Turb <- NORO %>%
+  ggplot(aes(x=turbidity.ntu, y=e.coli.cfu)) +
+  geom_point(color = "black") +
+   geom_smooth(method=lm, color = "black")
+
+
+print(N_ECFU_Turb)
+```
+
+#### Now run linear regression for N_ECFU_Turb.
+```{r}
+N_ECFU_Turb_lm <- lm(e.coli.cfu ~ turbidity.ntu, data=NORO)
+
+summary(N_ECFU_Turb_lm)
+```
+
+#### With *m = 490* and *p = 0.02*, there is a *positive*, *significant* correlation between *ECFU* and *Turbidity*.
+
+</br>
+
+#### E. Coli Vs Nitrate Concentration
+```{r}
+N_ECFU_no3 <- NORO %>%
+  ggplot(aes(x=no3.mgL, y=e.coli.cfu)) +
+  geom_point(color = "black") +
+   geom_smooth(method=lm, color = "black") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+
+print(N_ECFU_no3)
+```
+
+#### Now run linear regression for N_ECFU_no3.
+```{r}
+N_ECFU_no3_lm <- lm(e.coli.cfu ~ no3.mgL, data=NORO)
+
+summary(N_ECFU_no3_lm)
+```
+
+#### With *m = -213.1* and *p = 0.49*, there is a *negative*, *non-significant* correlation between *ECFU* and *no3*.
+
+</br>
+
+## BICO
+
+</br>
+
+### *Biological Indicator:*
+
+#### Biological Vs Conductivity
+```{r}
+B_BS_Con <- BICO %>%
+  ggplot(aes(x=conductivity.uscm, y=biological_score)) +
+  geom_point(color = "red") +
+   geom_smooth(method=lm, color = "red") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+
+print(B_BS_Con)
+```
+
+#### Now run linear regression for B_BS_Con.
+```{r}
+B_BS_Con_lm <- lm(biological_score ~ conductivity.uscm, data=BICO)
+
+summary(B_BS_Con_lm)
+```
+
+#### With *m = 0.0046* and *p = 0.86*, there is a *positive*, *non-significant* correlation between *biological score* and *conductivity*.
+
+</br>
+
+#### Biological Vs Turbidity
+```{r}
+B_BS_Turb <- BICO %>%
+  ggplot(aes(x=turbidity.ntu, y=biological_score)) +
+  geom_point(color = "blue") +
+   geom_smooth(method=lm, color = "blue") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+
+print(B_BS_Turb)
+```
+
+#### Now run linear regression for B_BS_Turb.
+```{r}
+B_BS_Turb_lm <- lm(biological_score ~ turbidity.ntu, data=BICO)
+
+summary(B_BS_Turb_lm)
+```
+
+#### With *m = -0.13* and *p = 0.44*, there is a *negative*, *non-significant* correlation between *biological score* and *turbidity*.
+
+</br>
+
+#### Biological Vs Nitrate Concentration
+```{r}
+B_BS_no3 <- BICO %>%
+  ggplot(aes(x=no3.mgL, y=biological_score)) +
+  geom_point(color = "green") +
+   geom_smooth(method=lm, color = "green") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+
+print(B_BS_no3)
+```
+
+#### Now run linear regression for B_BS_no3.
+```{r}
+B_BS_no3_lm <- lm(biological_score ~ no3.mgL, data=BICO)
+
+summary(B_BS_no3_lm)
+```
+
+#### With *m = -0.30* and *p = 0.84*, there is a *negative*, *non-significant* correlation between *biological score* and *no3*.
+
+</br>
+
+#### Biological Vs E. Coli CFU
+```{r}
+B_BS_ECFU <- BICO %>%
+  ggplot(aes(x=e.coli.cfu, y=biological_score)) +
+  geom_point(color = "purple") +
+   geom_smooth(method=lm, color = "purple") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+
+print(B_BS_ECFU)
+```
+
+#### Now run linear regression for B_BS_ECFU.
+```{r}
+B_BS_ECFU_lm <- lm(biological_score ~ e.coli.cfu, data=BICO)
+
+summary(B_BS_ECFU_lm)
+```
+
+#### With *m = -0.00041* and *p = 0.19*, there is no relationship between *biological score* and *ECFU*.
+
+</br>
+
+### *E. Coli*
+</br>
+#### E. Coli Vs Conductivity
+```{r}
+B_ECFU_Con <- BICO %>%
+  ggplot(aes(x=conductivity.uscm, y=e.coli.cfu)) +
+  geom_point(color = "orange") +
+   geom_smooth(method=lm, color = "orange") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+
+print(B_ECFU_Con)
+```
+
+#### Now run linear regression for B_ECFU_Con.
+```{r}
+B_ECFU_Con_lm <- lm(e.coli.cfu ~ conductivity.uscm, data=BICO)
+
+summary(B_ECFU_Con_lm)
+```
+
+#### With *m = 2.28* and *p = 0.90*, there is a *positive*, *non-significant* correlation between *ECFU* and *conductivity*.
+
+</br>
+
+#### E. Coli Vs Turbidity
+```{r}
+B_ECFU_Turb <- BICO %>%
+  ggplot(aes(x=turbidity.ntu, y=e.coli.cfu)) +
+  geom_point(color = "black") +
+   geom_smooth(method=lm, color = "black") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+
+print(B_ECFU_Turb)
+```
+
+#### Now run linear regression for B_ECFU_Turb.
+```{r}
+B_ECFU_Turb_lm <- lm(e.coli.cfu ~ turbidity.ntu, data=BICO)
+
+summary(B_ECFU_Turb_lm)
+```
+
+#### With *m = 261.5* and *p = 0.01*, there is a *positive*, *significant* correlation between *ECFU* and *turbidity*.
+
+</br>
+
+#### E. Coli Vs Nitrate Concentration
+```{r}
+B_ECFU_no3 <- BICO %>%
+  ggplot(aes(x=no3.mgL, y=e.coli.cfu)) +
+  geom_point(color = "black") +
+   geom_smooth(method=lm, color = "black") +
+  scale_x_continuous(trans = 'log10') +
+  scale_y_continuous(trans = 'log10')
+
+
+print(B_ECFU_no3)
+```
+
+#### Now run linear regression for B_ECFU_no3.
+```{r}
+B_ECFU_no3_lm <- lm(e.coli.cfu ~ no3.mgL, data=BICO)
+
+summary(B_ECFU_no3_lm)
+```
+
+#### With *m = -983.6* and *p = 0.33*, there is a *negative*, *non-significant* correlation between *ECFU* and *no3*.
+
+</br>
+
+### In summary, exploration of correlation of stream health indicators showed that most interactions were non-significant. However, it is to be noted that the ECFU and turbidity interaction was significantly positive. In further analysis, this may serve as a check to show that correlative analyses are robust enough with data provided. In aquatic microbiology, the positive relationship between ECFU growth and turbidity is generally accepted because the more bacteria that grow in the water column, the cloudier it will be.
+
+### Additionally, there was a weird significant correlation between biological score and conductivity at the NORO site only. The relationship is negative, meaning that biological score decreased as conductivity increases, which make sense. However, NORO was the only site to show this interaction as significant.
