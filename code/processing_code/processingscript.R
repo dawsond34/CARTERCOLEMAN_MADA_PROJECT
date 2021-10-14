@@ -14,6 +14,7 @@ library(tidyr)
 library(readr)
 library(stringr)
 library(naniar)
+library(here)
 
 #path to data
 #note the use of the here() package and not absolute paths
@@ -106,14 +107,11 @@ summary(data_cleaning)
 
 data_cleaning$stream_ID = substr(data_cleaning$WSID,1,4)
 
-MIDO <- data_cleaning %>%
-  filter( , stream_ID == "MIDO")
+MIDO <- filter(data_cleaning, stream_ID == "MIDO")
 
-NORO <- data_cleaning %>%
-  filter( , stream_ID == "NORO")
+NORO <- filter(data_cleaning, stream_ID == "NORO")
 
-BICO <- data_cleaning %>%
-  filter( , stream_ID == "BICO")
+BICO <- filter(data_cleaning, stream_ID == "BICO")
 
 summary(MIDO)
 summary(NORO)
@@ -129,8 +127,15 @@ summary(BICO)
 #See "analysis_code" folder for exploratory analysis.
 
 #Save files
-saveRDS(MIDO, "../../data/processed_data/MIDO.rds")
-saveRDS(NORO, "../../data/processed_data/NORO.rds")
-saveRDS(BICO, "../../data/processed_data/BICO.rds")
+MIDO_location <- here::here("data","processed_data","MIDO.rds")
+NORO_location <- here::here("data","processed_data","NORO.rds")
+BICO_location <- here::here("data","processed_data","BICO.rds")
+
+saveRDS(MIDO, file = MIDO_location)
+saveRDS(NORO, file = NORO_location)
+saveRDS(BICO, file = BICO_location)
+
+
+
 
 
