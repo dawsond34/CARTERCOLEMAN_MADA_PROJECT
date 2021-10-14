@@ -22,13 +22,13 @@ library(stringr)
 
 #### Loading the data from the processing script. Note that because you are loading a library at the beginning, it may either take a while or take several tries.
 ```{r}
-MIDO <- here::here("data","processed_data","MIDO.RDS")
-NORO <- here::here("data","processed_data","NORO.RDS")
-BICO <- here::here("data","processed_data","BICO.RDS")
+MIDO_location <- here::here("data","processed_data","MIDO.RDS")
+NORO_location <- here::here("data","processed_data","NORO.RDS")
+BICO_location <- here::here("data","processed_data","BICO.RDS")
 
-readRDS(MIDO)
-readRDS(NORO)
-readRDS(BICO)
+MIDO <- readRDS(MIDO_location)
+NORO <- readRDS(NORO_location)
+BICO <- readRDS(BICO_location)
 ```
 
 #### take a look at the data frames to make sure everything worked correctly.
