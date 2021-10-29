@@ -42,12 +42,14 @@ view(BICO)
 </br>
 
 ## MIDO
+_This section of regression analysis and plotting deals exclusively with the MIDO data set._
 
 </br>
 
 ### *Biological Indicator:*
 
-#### Biological Vs Conductivity
+#### Biological Vs Conductivity:
+_This plot shows the relationship between biological score as a function of conductivity._
 ```{r}
 BS_Con <- MIDO %>% 
   ggplot(aes(x=(conductivity.uscm), 
@@ -71,7 +73,8 @@ summary(BS_Con_lm)
 
 </br>
 
-#### Biological Vs Turbidity
+#### Biological Vs Turbidity:
+_This plot shows the relationship between biological score as a function of turbidity._
 ```{r}
 BS_Turb <- MIDO %>%
   ggplot(aes(x=turbidity.ntu, y=biological_score)) +
@@ -95,6 +98,7 @@ summary(BS_Turb_lm)
 </br>
 
 #### Biological Vs Nitrate Concentration
+_This plot shows the relationship between biological score as a function of nitrate (no3) concentration._
 ```{r}
 BS_no3 <- MIDO %>%
   ggplot(aes(x=no3.mgL, y=biological_score)) +
@@ -119,6 +123,7 @@ summary(BS_no3_lm)
 </br>
 
 #### Biological Vs E. Coli CFU
+_This plot shows the relationship between biological score as a function of E. Coli (cfu)._
 ```{r}
 BS_ECFU <- MIDO %>%
   ggplot(aes(x=e.coli.cfu, y=biological_score)) +
@@ -143,13 +148,22 @@ summary(BS_ECFU_lm)
 
 #### Now let's use the gridExtra package to view all the MIDO Biological Indicator outcome relationship graphs together.
 ```{r}
-grid.arrange(BS_Con, BS_ECFU, BS_no3, BS_Turb, ncol = 2)
+#Creates a plot with all the MIDO biological score relationships in it.
+MIDO_bs_lm <- grid.arrange(BS_Con, BS_ECFU, BS_no3, BS_Turb, ncol = 2)
 ```
-
-
+</br>
+_Save MIDO Biological Score figures_
+```{r}
+#Stores the location I want to save the graphs to.
+MIDO_bs_lm_location <- here::here("results","MIDO_bs_lm.png")
+#Saves graphs to stored location in ,my working directory.
+ggsave(MIDO_bs_lm, file = MIDO_bs_lm_location)
+```
+</br>
 ### *E. Coli*
 </br>
 #### E. Coli Vs Conductivity
+_This plot shows the relationship between E. coli (cfu) as a function of Conductivity._
 ```{r}
 ECFU_Con <- MIDO %>%
   ggplot(aes(x=conductivity.uscm, y=e.coli.cfu)) +
@@ -173,6 +187,7 @@ summary(ECFU_Con_lm)
 </br>
 
 #### E. Coli Vs Turbidity
+_This plot shows the relationship between E. coli as a function of Turbidity._
 ```{r}
 ECFU_Turb <- MIDO %>%
   ggplot(aes(x=turbidity.ntu, y=e.coli.cfu)) +
@@ -196,6 +211,7 @@ summary(ECFU_Turb_lm)
 </br>
 
 #### E. Coli Vs Nitrate Concentration
+_This plot shows the relationship between E. coli (cfu) as a function of nitrate (no3) concentration._
 ```{r}
 ECFU_no3 <- MIDO %>%
   ggplot(aes(x=no3.mgL, y=e.coli.cfu)) +
@@ -221,17 +237,26 @@ summary(ECFU_no3_lm)
 
 #### Now let's use the gridExtra package to view all the MIDO E. coli CFU outcome relationship graphs together.
 ```{r}
-grid.arrange(ECFU_Con, ECFU_no3, ECFU_Turb, ncol = 2)
+MIDO_ECFU_lm <- grid.arrange(ECFU_Con, ECFU_no3, ECFU_Turb, ncol = 2)
 ```
 </br>
-
+_Save MIDO ECFU figures_
+```{r}
+#Stores the location I want to save the graphs to.
+MIDO_ECFU_lm_location <- here::here("results","MIDO_ECFU_lm.png")
+#Saves graphs to stored location in ,my working directory.
+ggsave(MIDO_ECFU_lm, file = MIDO_ECFU_lm_location)
+```
+</br>
 ## NORO
+_the following linear analysis deals exclusively with the NORO dataset._
 
 </br>
 
 ### *Biological Indicator:*
 
 #### Biological Vs Conductivity
+_This plot shows the relationship between Biological Score as a function of Conductivity._
 ```{r}
 N_BS_Con <- NORO %>%
   ggplot(aes(x=conductivity.uscm, y=biological_score)) +
@@ -256,6 +281,7 @@ summary(N_BS_Con_lm)
 </br>
 
 #### Biological Vs Turbidity
+_This plot shows the relationship between Biological Score as a function of Turbidity._
 ```{r}
 N_BS_Turb <- NORO %>%
   ggplot(aes(x=turbidity.ntu, y=biological_score)) +
@@ -280,6 +306,7 @@ summary(N_BS_Turb_lm)
 </br>
 
 #### Biological Vs Nitrate Concentration
+_This plot shows the relationship between Biological Score as a function of nitrate (no3) Concentration._
 ```{r}
 N_BS_no3 <- NORO %>%
   ggplot(aes(x=no3.mgL, y=biological_score)) +
@@ -303,13 +330,8 @@ summary(N_BS_no3_lm)
 
 </br>
 
-#### Now let's use the gridExtra package to view all the NORO Biological Indicator outcome relationship graphs together.
-```{r}
-grid.arrange(N_BS_Con, N_BS_ECFU, N_BS_no3, N_BS_Turb, ncol = 2)
-```
-</br>
-
-#### Biological Vs E. Coli CFU
+#### Biological Vs E. Coli CFU\
+_This plot shows the relationship between Biological Score as a function of E. coli (cfu)._
 ```{r}
 N_BS_ECFU <- NORO %>%
   ggplot(aes(x=e.coli.cfu, y=biological_score)) +
@@ -332,10 +354,25 @@ summary(N_BS_ECFU_lm)
 #### With *m = 7.274e-05* and *p = 0.69*, there is not relationship between *Bbiological score* and *ECFU*.
 
 </br>
+#### Now let's use the gridExtra package to view all the NORO Biological Indicator outcome relationship graphs together.
+```{r}
+NORO_bs_lm <- grid.arrange(N_BS_Con, N_BS_ECFU, N_BS_no3, N_BS_Turb, ncol = 2)
+```
+</br>
+_Save NORO Biological Score figures_
+```{r}
+#Stores the location I want to save the graphs to.
+NORO_bs_lm_location <- here::here("results","NORO_bs_lm.png")
+#Saves graphs to stored location in ,my working directory.
+ggsave(NORO_bs_lm, file = NORO_bs_lm_location)
+```
+</br>
+</br>
 
 ### *E. Coli*
 </br>
 #### E. Coli Vs Conductivity
+_This plot shows the relationship between E. Coli (cfu) as a function of Conductivity._
 ```{r}
 N_ECFU_Con <- NORO %>%
   ggplot(aes(x=conductivity.uscm, y=e.coli.cfu)) +
@@ -360,6 +397,7 @@ summary(N_ECFU_Con_lm)
 </br>
 
 #### E. Coli Vs Turbidity
+_This plot shows the relationship between E. Coli (cfu) as a function of Turbidity._
 ```{r}
 N_ECFU_Turb <- NORO %>%
   ggplot(aes(x=turbidity.ntu, y=e.coli.cfu)) +
@@ -382,6 +420,7 @@ summary(N_ECFU_Turb_lm)
 </br>
 
 #### E. Coli Vs Nitrate Concentration
+_This plot shows the relationship between E. coli as a function of nitrate (no3) concentration._
 ```{r}
 N_ECFU_no3 <- NORO %>%
   ggplot(aes(x=no3.mgL, y=e.coli.cfu)) +
@@ -407,18 +446,28 @@ summary(N_ECFU_no3_lm)
 
 #### Now let's use the gridExtra package to view all the NORO E. coli CFU outcome relationship graphs together.
 ```{r}
-grid.arrange(N_ECFU_Con, N_ECFU_no3, N_ECFU_Turb, ncol = 2)
+NORO_ECFU_lm <- grid.arrange(N_ECFU_Con, N_ECFU_no3, N_ECFU_Turb, ncol = 2)
+```
+</br>
+_Save NORO ECFU figures_
+```{r}
+#Stores the location I want to save the graphs to.
+NORO_ECFU_lm_location <- here::here("results","NORO_ECFU_lm.png")
+#Saves graphs to stored location in ,my working directory.
+ggsave(NORO_ECFU_lm, file = NORO_ECFU_lm_location)
 ```
 
 </br>
 
-## BICO
+## BICO:
+_The following Linear Regression analysis deals exclusively with the BICO data set._
 
 </br>
 
 ### *Biological Indicator:*
 
 #### Biological Vs Conductivity
+_This plot shows the relationship between biological score as a function of conductivity._
 ```{r}
 B_BS_Con <- BICO %>%
   ggplot(aes(x=conductivity.uscm, y=biological_score)) +
@@ -443,6 +492,7 @@ summary(B_BS_Con_lm)
 </br>
 
 #### Biological Vs Turbidity
+_This plot shows the relationship between biological score as a function of turbidity._
 ```{r}
 B_BS_Turb <- BICO %>%
   ggplot(aes(x=turbidity.ntu, y=biological_score)) +
@@ -467,6 +517,7 @@ summary(B_BS_Turb_lm)
 </br>
 
 #### Biological Vs Nitrate Concentration
+_This plot shows the relationship between biological score as a function of nitrate (no3) concentration._
 ```{r}
 B_BS_no3 <- BICO %>%
   ggplot(aes(x=no3.mgL, y=biological_score)) +
@@ -491,6 +542,7 @@ summary(B_BS_no3_lm)
 </br>
 
 #### Biological Vs E. Coli CFU
+_This plot shows the relationship between biological score as a function of E. coli (cfu)._
 ```{r}
 B_BS_ECFU <- BICO %>%
   ggplot(aes(x=e.coli.cfu, y=biological_score)) +
@@ -516,7 +568,15 @@ summary(B_BS_ECFU_lm)
 
 #### Now let's use the gridExtra package to view all the BICO Biological Indicator outcome relationship graphs together.
 ```{r}
-grid.arrange(B_BS_Con, B_BS_ECFU, B_BS_no3, B_BS_Turb, ncol = 2)
+BICO_bs_lm <- grid.arrange(B_BS_Con, B_BS_ECFU, B_BS_no3, B_BS_Turb, ncol = 2)
+```
+</br>
+_Save BICO biological score figures_
+```{r}
+#Stores the location I want to save the graphs to.
+BICO_bs_lm_location <- here::here("results","BICO_bs_lm.png")
+#Saves graphs to stored location in ,my working directory.
+ggsave(BICO_bs_lm, file = BICO_bs_lm_location)
 ```
 
 </br>
@@ -524,6 +584,7 @@ grid.arrange(B_BS_Con, B_BS_ECFU, B_BS_no3, B_BS_Turb, ncol = 2)
 ### *E. Coli*
 </br>
 #### E. Coli Vs Conductivity
+_This plot shows the relationship between E. coli (cfu) as a function of conductivity._
 ```{r}
 B_ECFU_Con <- BICO %>%
   ggplot(aes(x=conductivity.uscm, y=e.coli.cfu)) +
@@ -548,6 +609,7 @@ summary(B_ECFU_Con_lm)
 </br>
 
 #### E. Coli Vs Turbidity
+_This plot shows the relationship between E. coli (cfu) as a function of turbidity._
 ```{r}
 B_ECFU_Turb <- BICO %>%
   ggplot(aes(x=turbidity.ntu, y=e.coli.cfu)) +
@@ -572,6 +634,7 @@ summary(B_ECFU_Turb_lm)
 </br>
 
 #### E. Coli Vs Nitrate Concentration
+_This plot shows the relationship between E. coli (cfu) as a function of nitrate (no3) concentration._
 ```{r}
 B_ECFU_no3 <- BICO %>%
   ggplot(aes(x=no3.mgL, y=e.coli.cfu)) +
@@ -597,7 +660,15 @@ summary(B_ECFU_no3_lm)
 
 #### Now let's use the gridExtra package to view all the BICO E. coli CFU outcome relationship graphs together.
 ```{r}
-grid.arrange(B_ECFU_Con, B_ECFU_no3, B_ECFU_Turb, ncol = 2)
+BICO_ECFU_lm <- grid.arrange(B_ECFU_Con, B_ECFU_no3, B_ECFU_Turb, ncol = 2)
+```
+</br>
+_Save BICO ECFU figures_
+```{r}
+#Stores the location I want to save the graphs to.
+BICO_ECFU_lm_location <- here::here("results","BICO_ECFU_lm.png")
+#Saves graphs to stored location in ,my working directory.
+ggsave(BICO_ECFU_lm, file = BICO_ECFU_lm_location)
 ```
 </br>
 ### Save the exploratory linear models
