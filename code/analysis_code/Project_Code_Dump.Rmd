@@ -1,53 +1,144 @@
 ---
-title: "Data Exploration"
+title: "Code_Dump_Project"
 author: "C. Coleman"
-date: "10/7/2021"
-output: word_document
+date: "10/28/2021"
+output: html_document
 ---
+_Additionally, we will eventually be removing outliers from a series of relationships between many predictors and one outcome. You can imagine that because we are looking at many predictors with one outcome, we will either have some overlap in the outcome values we are trying to remove or potentially remove every single outcome value if we try to do this in the same data set. As such, we will need to split the MIDO, NORO, and BICO dataframes into individual dataframes that contain our outcome of interest and each single variable we are trying to assess a relationship. We will do this below._
+```{r, MIDO}
+bs_con_df <- MIDO %>%
+  select("biological_score", "conductivity.uscm")
+bs_ecfu_df <- MIDO %>%
+  select("biological_score", "e.coli.cfu")
+bs_no3_df <- MIDO %>%
+  select("biological_score", "no3.mgL")
+bs_turb_df <- MIDO %>%
+  select("biological_score", "turbidity.ntu")
+ecfu_con_df <- MIDO %>%
+  select("e.coli.cfu", "conductivity.uscm")
+ecfu_no3_df <- MIDO %>%
+  select("e.coli.cfu", "no3.mgL")
+ecfu_turb_df <- MIDO %>%
+  select("e.coli.cfu", "turbidity.ntu")
+```
+</br>
+```{r, NORO}
+n_bs_con_df <- NORO %>%
+  select("biological_score", "conductivity.uscm")
+n_bs_ecfu_df <- NORO %>%
+  select("biological_score", "e.coli.cfu")
+n_bs_no3_df <- NORO %>%
+  select("biological_score", "no3.mgL")
+n_bs_turb_df <- NORO %>%
+  select("biological_score", "turbidity.ntu")
+n_ecfu_con_df <- NORO %>%
+  select("e.coli.cfu", "conductivity.uscm")
+n_ecfu_no3_df <- NORO %>%
+  select("e.coli.cfu", "no3.mgL")
+n_ecfu_turb_df <- NORO %>%
+  select("e.coli.cfu", "turbidity.ntu")
+```
+</br>
+```{r, BICO}
+b_bs_con_df <- BICO %>%
+  select("biological_score", "conductivity.uscm")
+b_bs_ecfu_df <- BICO %>%
+  select("biological_score", "e.coli.cfu")
+b_bs_no3_df <- BICO %>%
+  select("biological_score", "no3.mgL")
+b_bs_turb_df <- BICO %>%
+  select("biological_score", "turbidity.ntu")
+b_ecfu_con_df <- BICO %>%
+  select("e.coli.cfu", "conductivity.uscm")
+b_ecfu_no3_df <- BICO %>%
+  select("e.coli.cfu", "no3.mgL")
+b_ecfu_turb_df <- BICO %>%
+  select("e.coli.cfu", "turbidity.ntu")
+```
 
-# The following is an exploration of Stream Health Indicator correlation and comparison. The exploration will be structured as follows:
-### Each dataframe (MIDO, NORO, and BICO) will be analyzed separately. Within each dataframe, there are data explaining biological indicator values, stream chemistry, and fecal indicators over time. The only group with multiple components is stream chemistry. I plan to do a series of correlative analysis showing if there is some sort of relationship between the three indicator types to help inform further analysis via principle component, multivariate analysis, etc. Therfore, the goal of this exploration is basically to summarize how these indicators correlate.
 
 </br>
 
-#### First, we need to load all the libraries we will need.
-```{r}
-library(dplyr) 
-library(here)
-library(tidyverse)
-library(tidyr)
-library(readr)
-library(stringr)
-library(gridExtra)
+# Remove Outliers
+_To remove outliers, we must first create a new vector we will call "outliers_relationship", then we will just subtract it out of the original data frames (MIDO, NORO, BICO)_
+```{r, MIDO}
+Outliers_MIDO_bs_con <- as.numeric(names(bs_con_cd)[(bs_con_cd > (4/sample_size_MIDO))])
+Outliers_MIDO_bs_ecfu <- as.numeric(names(bs_ecfu_cd)[(bs_ecfu_cd > (4/sample_size_MIDO))])
+Outliers_MIDO_bs_no3 <- as.numeric(names(bs_no3_cd)[(bs_no3_cd > (4/sample_size_MIDO))])
+Outliers_MIDO_bs_turb <- as.numeric(names(bs_turb_cd)[(bs_turb_cd > (4/sample_size_MIDO))])
+Outliers_MIDO_ecfu_con <- as.numeric(names(ecfu_con_cd)[(ecfu_con_cd > (4/sample_size_MIDO))])
+Outliers_MIDO_ecfu_no3 <- as.numeric(names(ecfu_no3_cd)[(ecfu_no3_cd > (4/sample_size_MIDO))])
+Outliers_MIDO_ecfu_turb <- as.numeric(names(ecfu_turb_cd)[(ecfu_turb_cd > (4/sample_size_MIDO))])
 ```
-
-#### Loading the data from the processing script. Note that because you are loading a library at the beginning, it may either take a while or take several tries.
-```{r}
-MIDO_location <- here::here("data","processed_data","MIDO.RDS")
-NORO_location <- here::here("data","processed_data","NORO.RDS")
-BICO_location <- here::here("data","processed_data","BICO.RDS")
-
-MIDO <- readRDS(MIDO_location)
-NORO <- readRDS(NORO_location)
-BICO <- readRDS(BICO_location)
+</br>
+```{r, NORO}
+Outliers_NORO_bs_con <- as.numeric(names(n_bs_con_cd)[(n_bs_con_cd > (4/sample_size_NORO))])
+Outliers_NORO_bs_ecfu <- as.numeric(names(n_bs_ecfu_cd)[(n_bs_ecfu_cd > (4/sample_size_NORO))])
+Outliers_NORO_bs_no3 <- as.numeric(names(n_bs_no3_cd)[(n_bs_no3_cd > (4/sample_size_NORO))])
+Outliers_NORO_bs_turb <- as.numeric(names(n_bs_turb_cd)[(n_bs_turb_cd > (4/sample_size_NORO))])
+Outliers_NORO_ecfu_con <- as.numeric(names(n_ecfu_con_cd)[(n_ecfu_con_cd > (4/sample_size_NORO))])
+Outliers_NORO_ecfu_no3 <- as.numeric(names(n_ecfu_no3_cd)[(n_ecfu_no3_cd > (4/sample_size_NORO))])
+Outliers_NORO_ecfu_turb <- as.numeric(names(n_ecfu_turb_cd)[(n_ecfu_turb_cd > (4/sample_size_NORO))])
 ```
-
-#### take a look at the data frames to make sure everything worked correctly.
-```{r}
-view(MIDO)
-view(NORO)
-view(BICO)
+</br>
+```{r, BICO}
+Outliers_BICO_bs_con <- as.numeric(names(b_bs_con_cd)[(b_bs_con_cd > (4/sample_size_BICO))])
+Outliers_BICO_bs_ecfu <- as.numeric(names(b_bs_ecfu_cd)[(b_bs_ecfu_cd > (4/sample_size_BICO))])
+Outliers_BICO_bs_no3 <- as.numeric(names(b_bs_no3_cd)[(b_bs_no3_cd > (4/sample_size_BICO))])
+Outliers_BICO_bs_turb <- as.numeric(names(b_bs_turb_cd)[(b_bs_turb_cd > (4/sample_size_BICO))])
+Outliers_BICO_ecfu_con <- as.numeric(names(b_ecfu_con_cd)[(b_ecfu_con_cd > (4/sample_size_BICO))])
+Outliers_BICO_ecfu_no3 <- as.numeric(names(b_ecfu_no3_cd)[(b_ecfu_no3_cd > (4/sample_size_BICO))])
+Outliers_BICO_ecfu_turb <- as.numeric(names(b_ecfu_turb_cd)[(b_ecfu_turb_cd > (4/sample_size_BICO))])
+```
+</br>
+_With the outlier vectors created, all we need to do now is subtract them from the original cleaned data frames (MIDO, NORO, BICO)._
+```{r, MIDO}
+bs_con_df <- bs_con_df
+bs_ecfu_df <- bs_ecfu_df
+bs_no3_df <- bs_no3_df
+bs_turb_df <- bs_turb_df
+ecfu_con_df <- ecfu_con_df
+ecfu_no3_df <- ecfu_no3_df
+ecfu_turb_df <- ecfu_turb_df
+```
+</br>
+```{r, NORO}
+n_bs_con_df <- 
+n_bs_ecfu_df <- 
+n_bs_no3_df <- 
+n_bs_turb_df <- 
+n_ecfu_con_df <- 
+n_ecfu_no3_df <- 
+n_ecfu_turb_df <- 
+```
+</br>
+```{r, BICO}
+b_bs_con_df <- 
+b_bs_ecfu_df <- 
+b_bs_no3_df <- 
+b_bs_turb_df <- 
+b_ecfu_con_df <- 
+b_ecfu_no3_df <- 
+b_ecfu_turb_df <- 
+```
+```{r, MIDO}
+MIDO2 <- MIDO %>%
+  [-Outliers_MIDO_bs_con] 
+  MIDO[-Outliers_MIDO_bs_ecfu, ] 
+  MIDO[-Outliers_MIDO_bs_no3, ] 
+  MIDO[-Outliers_MIDO_bs_turb, ] 
+  MIDO[-Outliers_MIDO_ecfu_con, ] 
+  MIDO[-Outliers_MIDO_ecfu_no3, ] 
+  MIDO[-Outliers_MIDO_ecfu_turb, ]
 ```
 
 </br>
-
+# Linear Regression Analysis Corrected for Outliers
+</br>
 ## MIDO
-
 </br>
-
-### *Biological Indicator:*
-
-#### Biological Vs Conductivity
+#### Biological Indicator:
+_Biological Vs Conductivity_
 ```{r}
 BS_Con <- MIDO %>% 
   ggplot(aes(x=(conductivity.uscm), 
@@ -600,90 +691,3 @@ summary(B_ECFU_no3_lm)
 grid.arrange(B_ECFU_Con, B_ECFU_no3, B_ECFU_Turb, ncol = 2)
 ```
 </br>
-### Save the exploratory linear models
-#### MIDO
-_Biological Score_
-```{r}
-BS_Con_location <- here::here("data","processed_data","BS_Con.rds")
-saveRDS(BS_Con_lm, file = BS_Con_location)
-
-BS_ECFU_location <- here::here("data","processed_data","BS_ECFU.rds")
-saveRDS(BS_ECFU_lm, file = BS_ECFU_location)
-
-BS_no3_location <- here::here("data","processed_data","BS_no3.rds")
-saveRDS(BS_no3_lm, file = BS_no3_location)
-
-BS_Turb_location <- here::here("data","processed_data","BS_Turb.rds")
-saveRDS(BS_Turb_lm, file = BS_Turb_location)
-```
-_ECFU_
-```{r}
-ECFU_Con_location <- here::here("data","processed_data","BS_Con.rds")
-saveRDS(ECFU_Con_lm, file = ECFU_Con_location)
-
-ECFU_no3_location <- here::here("data","processed_data","BS_no3.rds")
-saveRDS(ECFU_no3_lm, file = ECFU_no3_location)
-
-ECFU_Turb_location <- here::here("data","processed_data","BS_Turb.rds")
-saveRDS(ECFU_Turb_lm, file = ECFU_Turb_location)
-```
-
-
-#### BICO
-_Biological Score_
-```{r}
-B_BS_Con_location <- here::here("data","processed_data","B_BS_Con.rds")
-saveRDS(B_BS_Con_lm, file = B_BS_Con_location)
-
-B_BS_ECFU_location <- here::here("data","processed_data","B_BS_ECFU.rds")
-saveRDS(B_BS_ECFU_lm, file = B_BS_ECFU_location)
-
-B_BS_no3_location <- here::here("data","processed_data","B_BS_no3.rds")
-saveRDS(B_BS_no3_lm, file = B_BS_no3_location)
-
-B_BS_Turb_location <- here::here("data","processed_data","B_BS_Turb.rds")
-saveRDS(B_BS_Turb_lm, file = B_BS_Turb_location)
-```
-_ECFU_
-```{r}
-B_ECFU_Con_location <- here::here("data","processed_data","B_BS_Con.rds")
-saveRDS(B_ECFU_Con_lm, file = B_ECFU_Con_location)
-
-B_ECFU_no3_location <- here::here("data","processed_data","B_BS_no3.rds")
-saveRDS(B_ECFU_no3_lm, file = B_ECFU_no3_location)
-
-B_ECFU_Turb_location <- here::here("data","processed_data","B_BS_Turb.rds")
-saveRDS(B_ECFU_Turb_lm, file = B_ECFU_Turb_location)
-```
-
-#### NORO
-_Biological Score_
-```{r}
-N_BS_Con_location <- here::here("data","processed_data","N_BS_Con.rds")
-saveRDS(N_BS_Con_lm, file = N_BS_Con_location)
-
-N_BS_ECFU_location <- here::here("data","processed_data","N_BS_ECFU.rds")
-saveRDS(N_BS_ECFU_lm, file = N_BS_ECFU_location)
-
-N_BS_no3_location <- here::here("data","processed_data","N_BS_no3.rds")
-saveRDS(N_BS_no3_lm, file = N_BS_no3_location)
-
-N_BS_Turb_location <- here::here("data","processed_data","N_BS_Turb.rds")
-saveRDS(N_BS_Turb_lm, file = N_BS_Turb_location)
-```
-_ECFU_
-```{r}
-N_ECFU_Con_location <- here::here("data","processed_data","N_BS_Con.rds")
-saveRDS(N_ECFU_Con_lm, file = N_ECFU_Con_location)
-
-N_ECFU_no3_location <- here::here("data","processed_data","N_BS_no3.rds")
-saveRDS(N_ECFU_no3_lm, file = N_ECFU_no3_location)
-
-N_ECFU_Turb_location <- here::here("data","processed_data","N_BS_Turb.rds")
-saveRDS(N_ECFU_Turb_lm, file = N_ECFU_Turb_location)
-```
-
-</br>
-### In summary, exploration of correlation of stream health indicators showed that most interactions were non-significant. However, it is to be noted that the ECFU and turbidity interaction was significantly positive. In further analysis, this may serve as a check to show that correlative analyses are robust enough with data provided. In aquatic microbiology, the positive relationship between ECFU growth and turbidity is generally accepted because the more bacteria that grow in the water column, the cloudier it will be.
-
-### Additionally, there was a weird significant correlation between biological score and conductivity at the NORO site only. The relationship is negative, meaning that biological score decreased as conductivity increases, which make sense. However, NORO was the only site to show this interaction as significant.

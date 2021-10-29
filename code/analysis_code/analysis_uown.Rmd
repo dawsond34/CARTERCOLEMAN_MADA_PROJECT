@@ -1,0 +1,576 @@
+---
+title: "analysis_uown"
+author: "C. Coleman"
+date: "10/27/2021"
+output: html_document
+---
+
+# UOWN Data Analysis for Determining Correlation Between Stream Health Indicators.
+</br>
+_The following markdown conducts the statistical analysis of how different indicators of stream health can potentially predict each other. In the previous processing script, the main take away was that there were very few significant relationships between different chemical, fecal/microbial and biological indicators. The only significant relationships found between Turbity and E. Coli CFU. However, It struck me as peculiar to see biological indicator score and conductivity to have only one significant relationship. After further review of the exploratory figures, I now want to assess the data and relationships explored this far for impact of outliers, determine if it is appropriate to remove outlying values, and see if this helps find more significant relationships._
+
+</br>
+
+_Therefore, the following constitues the statistical analysis protocol that will be conducted in this markdown:_
+</br>
+#### PART 1: Outliers
+-Assess each linear relationship previously performed for outliers in the data;
+-Determine if it is appropriate to remove outliers;
+-Rerun linear regressions for the different stream health indicator relationships and assess if more significant relationships exist.
+</br>
+#### Part 2: Linear Model Fit Analysis of MIDO Data
+
+
+### Required packages
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(here)
+```
+
+
+### Load Data
+_Start by loading the cleaned data labeled as MIDO, NORO, and BICO into the Global Environment._
+```{r}
+MIDO_location <- here::here("data","processed_data","MIDO.RDS")
+NORO_location <- here::here("data","processed_data","NORO.RDS")
+BICO_location <- here::here("data","processed_data","BICO.RDS")
+
+MIDO <- readRDS(MIDO_location)
+NORO <- readRDS(NORO_location)
+BICO <- readRDS(BICO_location)
+```
+</br>
+_Additionally, I am going to start of by log fitting the E. coli data. This is because that data can have counts several orders of magnitude higher than the variables it is being assessed with. Therefore, model fit may be artificially bad.
+```{r}
+MIDO %>%
+  mutate_at(vars(e.coli.cfu), ~log10(.))
+NORO %>%
+  mutate_at(vars(e.coli.cfu), ~log10(.))
+BICO %>%
+  mutate_at(vars(e.coli.cfu), ~log10(.))
+```
+
+</br>
+### Load all the created linear models from the processing data markdown.
+#### MIDO
+_Biological Score_
+```{r}
+BS_Con_location <- here::here("data","processed_data","BS_Con.rds")
+bs_con_lm <- readRDS(BS_Con_location)
+
+BS_ECFU_location <- here::here("data","processed_data","BS_ECFU.rds")
+bs_ecfu_lm <- readRDS(BS_ECFU_location)
+
+BS_no3_location <- here::here("data","processed_data","BS_no3.rds")
+bs_no3_lm <- readRDS(BS_no3_location)
+
+BS_Turb_location <- here::here("data","processed_data","BS_Turb.rds")
+bs_turb_lm <- readRDS(BS_Turb_location)
+```
+_ECFU_
+```{r}
+ECFU_Con_location <- here::here("data","processed_data","BS_Con.rds")
+ecfu_con_lm <- readRDS(ECFU_Con_location)
+
+ECFU_no3_location <- here::here("data","processed_data","BS_no3.rds")
+ecfu_no3_lm <- readRDS(ECFU_no3_location)
+
+ECFU_Turb_location <- here::here("data","processed_data","BS_Turb.rds")
+ecfu_turb_lm <- readRDS(ECFU_Turb_location)
+```
+
+
+#### BICO
+_Biological Score_
+```{r}
+B_BS_Con_location <- here::here("data","processed_data","B_BS_Con.rds")
+b_bs_con_lm <- readRDS(B_BS_Con_location)
+
+B_BS_ECFU_location <- here::here("data","processed_data","B_BS_ECFU.rds")
+b_bs_ecfu_lm <- readRDS(B_BS_ECFU_location)
+
+B_BS_no3_location <- here::here("data","processed_data","B_BS_no3.rds")
+b_bs_no3_lm <- readRDS(B_BS_no3_location)
+
+B_BS_Turb_location <- here::here("data","processed_data","B_BS_Turb.rds")
+b_bs_turb_lm <- readRDS(B_BS_Turb_location)
+```
+_ECFU_
+```{r}
+B_ECFU_Con_location <- here::here("data","processed_data","B_BS_Con.rds")
+b_ecfu_con_lm <- readRDS(B_ECFU_Con_location)
+
+B_ECFU_no3_location <- here::here("data","processed_data","B_BS_no3.rds")
+b_ecfu_no3_lm <- readRDS(B_ECFU_no3_location)
+
+B_ECFU_Turb_location <- here::here("data","processed_data","B_BS_Turb.rds")
+b_ecfu_turb_lm <- readRDS(B_ECFU_Turb_location)
+```
+
+#### NORO
+_Biological Score_
+```{r}
+N_BS_Con_location <- here::here("data","processed_data","N_BS_Con.rds")
+n_bs_con_lm <- readRDS(N_BS_Con_location)
+
+N_BS_ECFU_location <- here::here("data","processed_data","N_BS_ECFU.rds")
+n_bs_ecfu_lm <- readRDS(N_BS_ECFU_location)
+
+N_BS_no3_location <- here::here("data","processed_data","N_BS_no3.rds")
+n_bs_no3_lm <- readRDS(N_BS_no3_location)
+
+N_BS_Turb_location <- here::here("data","processed_data","N_BS_Turb.rds")
+n_bs_turb_lm <- readRDS(N_BS_Turb_location)
+```
+_ECFU_
+```{r}
+N_ECFU_Con_location <- here::here("data","processed_data","N_BS_Con.rds")
+n_ecfu_con_lm <- readRDS(N_ECFU_Con_location)
+
+N_ECFU_no3_location <- here::here("data","processed_data","N_BS_no3.rds")
+n_ecfu_no3_lm <- readRDS(N_ECFU_no3_location)
+
+N_ECFU_Turb_location <- here::here("data","processed_data","N_BS_Turb.rds")
+n_ecfu_turb_lm <- readRDS(N_ECFU_Turb_location)
+```
+
+
+### Outlier identification using Box and Whisker Plots.
+_Outliers in these data are going to be treated as errors in reporting. This is because the data is predominantly collected by non-scientist volunteers, who have had training with scientists. As such, it is likely that sampling of mis-identification of macroinvertebrates taxa has ocurred. Therefore, an argument can be made that assessing for anomalies in the data could help tease apart the true relationships that exist between different stream health indicators._
+</br>
+_As such, we will start by analyzing the data for outliers by evaluating relationships with cook's distance._
+</br>
+#### Set sample size for sample size parameter (4/n) for each data set (MIDO, NORO, BICO)
+```{r}
+sample_size_MIDO <- nrow(MIDO)
+sample_size_NORO <- nrow(NORO)
+sample_size_BICO <- nrow(BICO)
+```
+</br>
+#### MIDO
+</br>
+_Outcome: Biological Score_
+```{r}
+bs_con_cd <- cooks.distance(bs_con_lm)
+plot(bs_con_cd, pch="*", cex=2, main="MIDO: Conductivity vs. Biological Score with Outliers")
+abline(h = 4/sample_size_MIDO, col="red")
+
+bs_ecfu_cd <- cooks.distance(bs_ecfu_lm)
+plot(bs_ecfu_cd, pch="*", cex=2, main="MIDO: E. coli CFU vs. Biological Score with Outliers")
+abline(h = 4/sample_size_MIDO, col="red")
+
+bs_no3_cd <- cooks.distance(bs_no3_lm)
+plot(bs_no3_cd, pch="*", cex=2, main="MIDO: NO3 vs. Biological Score with Outliers")
+abline(h = 4/sample_size_MIDO, col="red")
+
+bs_turb_cd <- cooks.distance(bs_turb_lm)
+plot(bs_turb_cd, pch="*", cex=2, main="MIDO: Turbidity vs. Biological Score with Outliers")
+abline(h = 4/sample_size_MIDO, col="red")
+```
+</br>
+_Outcome: E.coli CFU_
+```{r}
+ecfu_con_cd <- cooks.distance(ecfu_con_lm)
+plot(ecfu_con_cd, pch="*", cex=2, main="MIDO: Conductivity vs. E. coli CFU with Outliers")
+abline(h = 4/sample_size_MIDO, col="red")
+
+ecfu_no3_cd <- cooks.distance(ecfu_no3_lm)
+plot(ecfu_no3_cd, pch="*", cex=2, main="MIDO: NO3 vs. E. coli CFU with Outliers")
+abline(h = 4/sample_size_MIDO, col="red")
+
+ecfu_turb_cd <- cooks.distance(ecfu_turb_lm)
+plot(ecfu_turb_cd, pch="*", cex=2, main="MIDO: Turbidity vs. E. coli CFU with Outliers")
+abline(h = 4/sample_size_MIDO, col="red")
+```
+</br>
+#### NORO
+</br>
+_Outcome: Biological Score_
+```{r}
+n_bs_con_cd <- cooks.distance(n_bs_con_lm)
+plot(n_bs_con_cd, pch="*", cex=2, main="NORO: Conductivity vs. Biological Score with Outliers")
+abline(h = 4/sample_size_NORO, col="red")
+
+n_bs_ecfu_cd <- cooks.distance(n_bs_ecfu_lm)
+plot(n_bs_ecfu_cd, pch="*", cex=2, main="NORO: E. coli CFU vs. Biological Score with Outliers")
+abline(h = 4/sample_size_NORO, col="red")
+
+n_bs_no3_cd <- cooks.distance(n_bs_no3_lm)
+plot(n_bs_no3_cd, pch="*", cex=2, main="NORO: NO3 vs. Biological Score with Outliers")
+abline(h = 4/sample_size_NORO, col="red")
+
+n_bs_turb_cd <- cooks.distance(n_bs_turb_lm)
+plot(n_bs_turb_cd, pch="*", cex=2, main="NORO: Turbidity vs. Biological Score with Outliers")
+abline(h = 4/sample_size_NORO, col="red")
+```
+</br>
+_Outcome: E.coli CFU_
+```{r}
+n_ecfu_con_cd <- cooks.distance(n_ecfu_con_lm)
+plot(n_ecfu_con_cd, pch="*", cex=2, main="NORO: Conductivity vs. E. coli CFU with Outliers")
+abline(h = 4/sample_size_NORO, col="red")
+
+n_ecfu_no3_cd <- cooks.distance(n_ecfu_no3_lm)
+plot(n_ecfu_no3_cd, pch="*", cex=2, main="NORO: NO3 vs. E. coli CFU with Outliers")
+abline(h = 4/sample_size_NORO, col="red")
+
+n_ecfu_turb_cd <- cooks.distance(n_ecfu_turb_lm)
+plot(n_ecfu_turb_cd, pch="*", cex=2, main="NORO: Turbidity vs. E. coli CFU with Outliers")
+abline(h = 4/sample_size_NORO, col="red")
+```
+</br>
+#### BICO
+</br>
+_Outcome: Biological Score_
+```{r}
+b_bs_con_cd <- cooks.distance(b_bs_con_lm)
+plot(b_bs_con_cd, pch="*", cex=2, main="BICO: Conductivity vs. Biological Score with Outliers")
+abline(h = 4/sample_size_BICO, col="red")
+
+b_bs_ecfu_cd <- cooks.distance(b_bs_ecfu_lm)
+plot(b_bs_ecfu_cd, pch="*", cex=2, main="BICO: E. Coli CFU vs. Biological Score with Outliers")
+abline(h = 4/sample_size_BICO, col="red")
+
+b_bs_no3_cd <- cooks.distance(b_bs_no3_lm)
+plot(b_bs_no3_cd, pch="*", cex=2, main="BICO: NO3 vs. Biological Score with Outliers")
+abline(h = 4/sample_size_BICO, col="red")
+
+b_bs_turb_cd <- cooks.distance(bs_turb_lm)
+plot(b_bs_turb_cd, pch="*", cex=2, main="BICO: Turbidity vs. Biological Score with Outliers")
+abline(h = 4/sample_size_BICO, col="red")
+```
+</br>
+_Outcome: E.coli CFU_
+```{r}
+b_ecfu_con_cd <- cooks.distance(b_ecfu_con_lm)
+plot(b_ecfu_con_cd, pch="*", cex=2, main="BICO: Conductivity vs. E. coli CFU with Outliers")
+abline(h = 4/sample_size_BICO, col="red")
+
+b_ecfu_no3_cd <- cooks.distance(b_ecfu_no3_lm)
+plot(b_ecfu_no3_cd, pch="*", cex=2, main="BICO: NO3 vs. E. coli CFU with Outliers")
+abline(h = 4/sample_size_BICO, col="red")
+
+b_ecfu_turb_cd <- cooks.distance(b_ecfu_turb_lm)
+plot(b_ecfu_turb_cd, pch="*", cex=2, main="BICO: Turbidity vs. E. coli CFU with Outliers")
+abline(h = 4/sample_size_BICO, col="red")
+```
+</br>
+_The results of the Cook's Distance show that while there are outliers, very few of them actually exceed a Cook's Distance value (CDV) of 1. The CDV value of 1 is significant because it is the statistical community consensus value that indicates an influential outlier. As such, it is my educated opinion to leave all data points in, as I do not believe they are skewing liner modle results in a significant enough way to warrant removal._
+</br>
+
+# Part 2: Linear Model Fit Assessment for MIDO Data
+</br>
+_At this point,the main take-aways from data analysis thus far is that correlation of stream health indicators showed that most interactions were non-significant, with the exception of E. coli (cfu) and turbidity. Additionally, the data set is most likely not skewed by influential outliers._
+</br>
+_Moving forward, I want to focus in on just the MIDO dataset. As you can tell, working with many variables in three different data sets can be quite cumbersome to read through. For ease of interpretation, the MIDO data set will serve as the data frame where I test how robust the linear fit models actually are for the data. MIDO is the only data set large enough that when we split the data set into a "test" and "train" data set, I actually have confidence in the resulting model fit analysis. For comparison, MIDO has an n = 88; NORO has an n = 35; and BICO has an n = 23. The only thing we are missing by dropping the other sites is assessing site-by-site comparison, which I am choosing not to focus on anyway._
+</br>
+#### Splitting MIDO Data
+_As discussed above, we need to split the MIDO data into a test and train data set. We do this to see if we get approximately the same linear relationship between the larger (75% of MIDO) train data and the smaller (25% of MIDO) test data._
+```{r}
+data_split <- initial_split(MIDO, prop = 3/4)
+
+# Create data frames for the two sets:
+train_data <- training(data_split)
+test_data  <- testing(data_split)
+```
+</br>
+_Create a recipe for each linear model relationship in the MIDO dataframe._
+```{r}
+Recipe_bs_con <- recipe(biological_score ~ conductivity.uscm, data = MIDO)
+Recipe_bs_ecfu <- recipe(biological_score ~ e.coli.cfu, data = MIDO)
+Recipe_bs_no3 <- recipe(biological_score ~ no3.mgL, data = MIDO)
+Recipe_bs_turb <- recipe(biological_score ~ turbidity.ntu, data = MIDO)
+Recipe_ecfu_con <- recipe(e.coli.cfu ~ e.coli.cfu, data = MIDO)
+Recipe_ecfu_no3 <- recipe(e.coli.cfu ~ no3.mgL, data = MIDO)
+Recipe_ecfu_turb <- recipe(e.coli.cfu ~ turbidity.ntu, data = MIDO)
+```
+_With our seven linear model recipes created, we will define of linear regression model pipe._
+```{r}
+linear_mod <- linear_reg() %>% 
+  set_engine("lm") %>%
+  set_mode("regression")
+```
+_Next, create a workflow that adds our seven recipes and model together._
+```{r}
+#Biological Score and Conductivity
+bs_con_wflow <- 
+  workflow() %>% 
+  add_model(linear_mod) %>% 
+  add_recipe(Recipe_bs_con)
+
+#Biological Score and E. coli(cfu)
+bs_ecfu_wflow <- 
+  workflow() %>% 
+  add_model(linear_mod) %>% 
+  add_recipe(Recipe_bs_ecfu)
+
+#Biological Score and NO3
+bs_no3_wflow <- 
+  workflow() %>% 
+  add_model(linear_mod) %>% 
+  add_recipe(Recipe_bs_no3)
+
+#Biological Score and Turbidity
+bs_turb_wflow <- 
+  workflow() %>% 
+  add_model(linear_mod) %>% 
+  add_recipe(Recipe_bs_turb)
+
+#E. Coli (cfu) and Conductivity
+ecfu_con_wflow <- 
+  workflow() %>% 
+  add_model(linear_mod) %>% 
+  add_recipe(Recipe_ecfu_con)
+
+#E. Coli (cfu) and NO3
+ECFU_no3_wflow <- 
+  workflow() %>% 
+  add_model(linear_mod) %>% 
+  add_recipe(Recipe_ecfu_no3)
+
+#E. Coli (cfu) and Turbidity
+ecfu_turb_wflow <- 
+  workflow() %>% 
+  add_model(linear_mod) %>% 
+  add_recipe(Recipe_ecfu_turb)
+```  
+
+
+## Modeling Train Data Predictions Using Workflows
+_Using the workflow above, lets now fit each pf the seven stream health indicator linear models to the train data set._
+</br>
+_Defining a command that runs model fitting to each of the seven models_
+```{r}
+bs_con_fit <- 
+  bs_con_wflow %>% 
+  fit(data = train_data)
+
+bs_ecfu_fit <- 
+  bs_ecfu_wflow %>% 
+  fit(data = train_data)
+
+bs_no3_fit <- 
+  bs_no3_wflow %>% 
+  fit(data = train_data)
+
+bs_turb_fit <- 
+  bs_turb_wflow %>% 
+  fit(data = train_data)
+
+ecfu_con_fit <- 
+  ecfu_con_wflow %>% 
+  fit(data = train_data)
+
+ecfu_no3_fit <- 
+  ECFU_no3_wflow %>% 
+  fit(data = train_data)
+
+ecfu_turb_fit <- 
+  ecfu_turb_wflow %>% 
+  fit(data = train_data)
+```
+</br>
+_Pull linear regression fit models using parsnip()._
+```{r}
+bs_con_fit %>% 
+  extract_fit_parsnip() %>% 
+  tidy()
+
+bs_ecfu_fit %>% 
+  extract_fit_parsnip() %>% 
+  tidy()
+
+bs_no3_fit %>% 
+  extract_fit_parsnip() %>% 
+  tidy()
+
+bs_turb_fit %>% 
+  extract_fit_parsnip() %>% 
+  tidy()
+
+ecfu_con_fit %>% 
+  extract_fit_parsnip() %>% 
+  tidy()
+
+ecfu_no3_fit %>% 
+  extract_fit_parsnip() %>% 
+  tidy()
+
+ecfu_turb_fit %>% 
+  extract_fit_parsnip() %>% 
+  tidy()
+```
+#####Analysis here#####
+</br>
+#### Using Workflows to Make Predictions in the train data set.
+_This is important because we are basically going to try and recreate the actual MIDO data set using the test and trained data and our linear models. We will eventually compare the test data predictions with the train data predictions to assess if our model is actually a good estimator of the relationships between stream health indicators. Additionally, this prediction step allows us to "artificially" create a larger n for our data, allowing fit to be assessed more accurately. This will be done using the augment() function to make predicted outcomes in the test and train data._
+```{r}
+bs_con_aug <- 
+  augment(bs_con_fit, train_data)
+
+bs_ecfu_aug <- 
+  augment(bs_ecfu_fit, train_data)
+
+bs_no3_aug <- 
+  augment(bs_no3_fit, train_data)
+
+bs_turb_aug <- 
+  augment(bs_turb_fit, train_data)
+
+ecfu_con_aug <- 
+  augment(ecfu_con_fit, train_data)
+
+ecfu_no3_aug <- 
+  augment(ecfu_no3_fit, train_data)
+
+ecfu_turb_aug <- 
+  augment(ecfu_turb_fit, train_data)
+```  
+</br>
+#### Using Root Mean Squared Error (RMSE) to Assess Model Fit.
+
+_Assessing fit for train data predictions by calculating RMSE for the test data predictions of stream health indicator linear relationships._
+```{r}
+bs_con_aug %>%
+  rmse(truth = biological_score, .pred)
+
+bs_ecfu_aug %>%
+  rmse(truth = biological_score, .pred)
+
+bs_no3_aug %>%
+  rmse(truth = biological_score, .pred)
+
+bs_turb_aug %>%
+  rmse(truth = biological_score, .pred)
+ 
+ecfu_con_aug %>%
+  rmse(truth = e.coli.cfu, .pred)
+  
+ecfu_no3_aug %>%
+  rmse(truth = e.coli.cfu, .pred)
+  
+ecfu_turb_aug %>%
+  rmse(truth = e.coli.cfu, .pred)
+```
+</br>
+#####Analysis here#####
+</br>
+## Modeling Test Data Predictions Using Workflows
+_Using the workflow above, lets now fit each pf the seven stream health indicator linear models to the test data set._
+</br>
+_Defining a command that runs model fitting to each of the seven models_
+```{r}
+bs_con_fit_test <- 
+  bs_con_wflow %>% 
+  fit(data = test_data)
+
+bs_ecfu_fit_test <- 
+  bs_ecfu_wflow %>% 
+  fit(data = test_data)
+
+bs_no3_fit_test <- 
+  bs_no3_wflow %>% 
+  fit(data = test_data)
+
+bs_turb_fit_test <- 
+  bs_turb_wflow %>% 
+  fit(data = test_data)
+
+ecfu_con_fit_test <- 
+  ecfu_con_wflow %>% 
+  fit(data = test_data)
+
+ecfu_no3_fit_test <- 
+  ECFU_no3_wflow %>% 
+  fit(data = test_data)
+
+ecfu_turb_fit_test <- 
+  ecfu_turb_wflow %>% 
+  fit(data = test_data)
+```
+</br>
+_Pull linear regression fit models using parsnip()._
+```{r}
+bs_con_fit_test %>% 
+  extract_fit_parsnip() %>% 
+  tidy()
+
+bs_ecfu_fit_test %>% 
+  extract_fit_parsnip() %>% 
+  tidy()
+
+bs_no3_fit_test %>% 
+  extract_fit_parsnip() %>% 
+  tidy()
+
+bs_turb_fit_test %>% 
+  extract_fit_parsnip() %>% 
+  tidy()
+
+ecfu_con_fit_test %>% 
+  extract_fit_parsnip() %>% 
+  tidy()
+
+ecfu_no3_fit_test %>% 
+  extract_fit_parsnip() %>% 
+  tidy()
+
+ecfu_turb_fit_test %>% 
+  extract_fit_parsnip() %>% 
+  tidy()
+```
+#####Analysis here#####
+</br>
+#### Using Workflows to Make Predictions in the test data set.
+_This is important because we are basically going to try and recreate the actual MIDO data set using the test and trained data and our linear models. This prediction step allows us to "artificially" create a larger n for our data, allowing fit to be assessed more accurately for data predicted from split data. This will be done using the augment() function to make predicted outcomes in the test and train data._
+```{r}
+bs_con_aug_test <- 
+  augment(bs_con_fit, test_data)
+
+bs_ecfu_aug_test <- 
+  augment(bs_ecfu_fit, test_data)
+
+bs_no3_aug_test <- 
+  augment(bs_no3_fit, test_data)
+
+bs_turb_aug_test <- 
+  augment(bs_turb_fit, test_data)
+
+ecfu_con_aug_test <- 
+  augment(ecfu_con_fit, test_data)
+
+ecfu_no3_aug_test <- 
+  augment(ecfu_no3_fit, test_data)
+
+ecfu_turb_aug_test <- 
+  augment(ecfu_turb_fit, test_data)
+```  
+</br>
+#### Using Root Mean Squared Error (RMSE) to Assess Model Fit.
+
+_Assessing fit for train data predictions by calculating RMSE for the test data predictions of stream health indicator linear relationships._
+```{r}
+bs_con_aug_test %>%
+  rmse(truth = biological_score, .pred)
+
+bs_ecfu_aug_test %>%
+  rmse(truth = biological_score, .pred)
+
+bs_no3_aug_test %>%
+  rmse(truth = biological_score, .pred)
+
+bs_turb_aug_test %>%
+  rmse(truth = biological_score, .pred)
+ 
+ecfu_con_aug_test %>%
+  rmse(truth = e.coli.cfu, .pred)
+  
+ecfu_no3_aug_test %>%
+  rmse(truth = e.coli.cfu, .pred)
+  
+ecfu_turb_aug_test %>%
+  rmse(truth = e.coli.cfu, .pred)
+```
+#####Analysis Here#####
+  
