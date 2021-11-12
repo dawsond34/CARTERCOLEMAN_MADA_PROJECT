@@ -28,9 +28,13 @@ _4. Assess how well the MIDO linear model suite of relationships (Biological Sco
 
 ### Required packages
 ```{r}
-library(tidyverse)
-library(tidymodels)
-library(here)
+library(tidyverse) #Working with multiple Tidy packages
+library(tidymodels) #Building models
+library(dplyr) #data manipulation
+library(here) #setting pathways for saving files
+library(rpart) #Model fitting
+library(ranger) #Model fitting
+library(glmnet) #Model fitting
 ```
 
 
@@ -614,4 +618,391 @@ saveRDS(ecfu_con_aug, file = MIDO_ECFU_Con_RMSE_location)
 #Create a location and save linear RMSE for E. coli (cfu) in the MIDO test data.
 MIDO_ECFU_Con_RMSE_test_location <- here::here("results","MIDO_ECFU_Con_RMSE_test.rds")
 saveRDS(ecfu_con_aug_test, file = MIDO_ECFU_Con_RMSE_test_location)
+```
+
+# Part 3: LASSO Modeling for Ideal Combination of Stream Health Indicators to Predict Biological SCore and E. Coli Colony Forming Units in MIDO Data.
+
+# Biological Score
+
+## Data Set Up:
+
+_Take ID and time variables out of MIDO Data frame. This will help reduce errors when we try to run the Model._
+```{r}
+MIDO_LASSO <- MIDO %>%
+  select(-"WSID", -"stream_ID", -"month", -"year", -"day", -"pH")
+```
+
+</br>
+
+_log transform E. coli data to fix bias in E. coli data_
+```{r}
+MIDO_LASSO <- MIDO_LASSO %>%
+  mutate(e.coli.cfu = log10(MIDO_LASSO$e.coli.cfu))
+```
+
+</br>
+
+_Set seed: This sets a random number generator with initial (pseudo)random values set as "123". We will need a series of random numbers created for our machine learning analysis._
+```{r}
+#Set random number generator.
+set.seed(123)
+```
+
+ _Test/Train data split: Split data into a training data set and a test data set. The training set will contain most of the original data (70%), while the test data set will have a smaller portion (30%). The training data is used to fit a model and the test data is to assess how good of a fit the data is._
+
+</br>
+
+## Null Model For MIDO Data
+
+_5-fold cross validation, 5 times repeated for MIDO data: Here we are setting a cross-validation of the machine learning models. Cross-validation is used to measure how the results of our machine learning models will generalize to an independent data set. As such, the folds created will be be 5 random sub-samples of the train data set to test the validity of our models within the train data set. The 5x5 structure is arbitrary._
+```{r}
+#Create folds for LASSO Cross Validation.
+fold_BS <- vfold_cv(MIDO_LASSO, v = 5, repeats = 5, strata = biological_score)
+```
+
+_Creating the recipe for Biological Score vs all predictors_
+
+```{r}
+BS.recipe <- 
+  recipe(biological_score ~ ., data = MIDO_LASSO) %>%
+  step_zv(all_predictors()) %>%
+  step_normalize(all_predictors())
+  
+BS.recipe
+```
+_Setting linear regression model to assess relationship between Biological Score (outcome) and all other predictor variables._
+```{r}
+lm_mod <- linear_reg() %>% set_engine("lm") %>% set_mode("regression")
+```
+
+_However, first we need to create our null model to test against._
+
+</br>
+
+### Null Model:
+
+ </br>
+
+_Creates null model recipe. When we call this term, it will indicate in our workflow that Biological Score will be predicted by a value of 1 (NULL)._ 
+```{r}
+Null_recipe_lm <- recipe(biological_score ~ 1, data = MIDO_LASSO)
+```
+
+_Creating the Workflow: this creates a set workflow for running a null linear regression model with body temperature as the outcome._
+```{r}
+null_wf <- workflow() %>% add_model(lm_mod) %>% add_recipe(Null_recipe_lm)
+```
+
+_Here, I am going to fit the null model created in the above workflow to the folds made from the train data set._
+```{r}
+null_lm <- fit_resamples(null_wf, resamples = fold_BS)
+```
+_Calculate RMSE for the train data linear model._
+```{r}
+Null_Met <- collect_metrics(null_lm)
+
+Null_Met
+```
+_RMSE = 6.63, with a standard deviation of 0.13. This will serve as our check to test our models against latter on.
+
+</br>
+
+## LASSO Model
+
+</br>
+
+_Specifying The Model: LASSO_
+```{r}
+lasso_mod <- 
+  linear_reg(penalty = tune(), mixture = 1) %>% 
+  set_engine("glmnet")
+```
+
+</br>
+
+_Creating a Workflow: LASSO_
+```{r}
+lasso_wf <- workflow() %>%
+  add_model(lasso_mod) %>%
+  add_recipe(BS.recipe)
+```
+
+</br>
+
+_Create Tuning Grid: LASSO_
+```{r}
+LASSO_grid <- grid_regular(penalty(), levels = 50)
+```
+
+
+</br>
+
+_Cross Validation with tune_grid(): LASSO_
+```{r}
+lasso_resample <- 
+  lasso_wf %>%
+  tune_grid(resamples = fold_BS,
+            grid = LASSO_grid,
+            control = control_grid(verbose = FALSE, save_pred = TRUE),
+            metrics = metric_set(rmse))
+
+lasso_resample %>%
+  collect_metrics()
+```
+
+</br>
+
+_Plot model performance using autoplot()_
+```{r}
+#Plot of MIDO data LASSO model performance
+lasso_resample %>%
+  autoplot()
+```
+
+_Showing and selecting best performing Models_
+```{r}
+#Showing best performing LASSO models
+lasso_resample %>%
+  show_best()
+  
+#Selects best performing model
+best_lasso <- lasso_resample %>%
+  select_best()
+```
+
+_This shows that model 47 is the best performing models (RMSE = 6.50; STE = 0.16). However, it doesn't really perform any better than the null model, making it a bad fit to the data._
+
+</br>
+
+_Creating final fit based on best model permutation and plotting predicted values from that final fit model_
+```{r}
+lasso_final_wf <- 
+  lasso_wf %>% 
+  finalize_workflow(best_lasso)
+
+lasso_final_wf
+
+#Create workflow for fitting model to train_data2 predictions
+lasso_final_fit <- 
+  lasso_final_wf %>%
+  fit(MIDO_LASSO) 
+```
+
+_Calculating residuals:_
+```{r}
+#Manually calculate residuals for MIDO data LASSO models between real and predicted values.
+lasso_residuals <- lasso_final_fit %>%
+  augment(MIDO_LASSO) %>% #use augment() to make predictions from train data
+  select(c(.pred, biological_score)) %>%
+  mutate(.resid = biological_score - .pred) #calculate residuals and make new row.
+
+lasso_residuals
+```
+_model predictions from tuned model vs actual outcomes_
+```{r}
+lasso_pred_plot <- ggplot(lasso_residuals, 
+                          aes(x = biological_score, 
+                              y = .pred)) + 
+  geom_point() + 
+  labs(title = "Predictions vs Actual: LASSO", 
+       x = "Biological Score Outcome", 
+       y = "Biological Score Prediction")
+lasso_pred_plot
+```
+_plot residuals vs predictions_
+```{r}
+lasso_residual_plot <- ggplot(lasso_residuals, 
+                              aes(y = .resid, 
+                                  x = .pred)) + 
+  geom_point() + 
+  labs(title = "Predictions vs Residuals: LASSO", 
+       x = "Biological Score Prediction", 
+       y = "Residuals")
+plot(lasso_residual_plot) #view plot
+```
+
+# LASSO: E. coli cfu
+
+## Data Set Up:
+
+_Set seed: This sets a random number generator with initial (pseudo)random values set as "123". We will need a series of random numbers created for our machine learning analysis._
+```{r}
+#Set random number generator.
+set.seed(123)
+```
+
+ _Test/Train data split: Split data into a training data set and a test data set. The training set will contain most of the original data (70%), while the test data set will have a smaller portion (30%). The training data is used to fit a model and the test data is to assess how good of a fit the data is._
+
+</br>
+
+## Null Model For MIDO Data
+
+_5-fold cross validation, 5 times repeated for MIDO data: Here we are setting a cross-validation of the machine learning models. Cross-validation is used to measure how the results of our machine learning models will generalize to an independent data set. As such, the folds created will be be 5 random sub-samples of the train data set to test the validity of our models within the train data set. The 5x5 structure is arbitrary._
+```{r}
+#Create folds for LASSO Cross Validation.
+fold_EC <- vfold_cv(MIDO_LASSO, v = 5, repeats = 5, strata = e.coli.cfu)
+```
+
+_Creating the recipe for Biological Score vs all predictors_
+
+```{r}
+EC.recipe <- 
+  recipe(e.coli.cfu ~ ., data = MIDO_LASSO) %>%
+  step_zv(all_predictors()) %>%
+  step_normalize(all_predictors())
+  
+EC.recipe
+```
+_Setting linear regression model to assess relationship between Biological Score (outcome) and all other predictor variables._
+```{r}
+lm_mod <- linear_reg() %>% set_engine("lm") %>% set_mode("regression")
+```
+
+_However, first we need to create our null model to test against._
+
+</br>
+
+### Null Model:
+
+ </br>
+
+_Creates null model recipe. When we call this term, it will indicate in our workflow that E. Coli cfu will be predicted by a value of 1 (NULL)._ 
+```{r}
+Null_recipe_lm_EC <- recipe(e.coli.cfu ~ 1, data = MIDO_LASSO)
+```
+
+_Creating the Workflow: this creates a set workflow for running a null linear regression model with E. coli cfu as the outcome._
+```{r}
+null_wf_EC <- workflow() %>% add_model(lm_mod) %>% add_recipe(Null_recipe_lm_EC)
+```
+
+_Here, I am going to fit the null model created in the above workflow to the folds made from the train data set._
+```{r}
+null_lm_EC <- fit_resamples(null_wf_EC, resamples = fold_EC)
+```
+
+</br>
+
+_Calculate RMSE for the train data linear model._
+```{r}
+Null_Met_EC <- collect_metrics(null_lm_EC)
+
+Null_Met_EC
+```
+_RMSE = 0.52, with a standard deviation of 0.014. This will serve as our check to test our models against latter on._
+
+</br>
+
+## LASSO Model
+
+</br>
+
+_Specifying The Model: LASSO_
+```{r}
+lasso_mod <- 
+  linear_reg(penalty = tune(), mixture = 1) %>% 
+  set_engine("glmnet")
+```
+
+</br>
+
+_Creating a Workflow: LASSO_
+```{r}
+lasso_wf_EC <- workflow() %>%
+  add_model(lasso_mod) %>%
+  add_recipe(EC.recipe)
+```
+
+</br>
+
+_Create Tuning Grid: LASSO_
+```{r}
+LASSO_grid <- grid_regular(penalty(), levels = 50)
+```
+
+
+</br>
+
+_Cross Validation with tune_grid(): LASSO_
+```{r}
+lasso_resample_EC <- 
+  lasso_wf_EC %>%
+  tune_grid(resamples = fold_EC,
+            grid = LASSO_grid,
+            control = control_grid(verbose = FALSE, save_pred = TRUE),
+            metrics = metric_set(rmse))
+
+lasso_resample_EC %>%
+  collect_metrics()
+```
+
+</br>
+
+_Plot model performance using autoplot()_
+```{r}
+#Plot of MIDO data LASSO model performance
+lasso_resample_EC %>%
+  autoplot()
+```
+
+_Showing and selecting best performing Models_
+```{r}
+#Showing best performing LASSO models
+lasso_resample_EC %>%
+  show_best()
+  
+#Selects best performing model
+best_lasso_EC <- lasso_resample_EC %>%
+  select_best()
+```
+
+_This shows that model 41 is the best performing models (RMSE = 0.50; STE = 0.012). However, it doesn't really perform any better than the null model, making it a bad fit to the data._
+
+</br>
+
+_Creating final fit based on best model permutation and plotting predicted values from that final fit model_
+```{r}
+lasso_final_wf_EC <- 
+  lasso_wf_EC %>% 
+  finalize_workflow(best_lasso_EC)
+
+lasso_final_wf_EC
+
+#Create workflow for fitting model to train_data2 predictions
+lasso_final_fit_EC <- 
+  lasso_final_wf_EC %>%
+  fit(MIDO_LASSO) 
+```
+
+_Calculating residuals:_
+```{r}
+#Manually calculate residuals for MIDO data LASSO models between real and predicted values.
+lasso_residuals_EC <- lasso_final_fit_EC %>%
+  augment(MIDO_LASSO) %>% #use augment() to make predictions from train data
+  select(c(.pred, e.coli.cfu)) %>%
+  mutate(.resid = e.coli.cfu - .pred) #calculate residuals and make new row.
+
+lasso_residuals_EC
+```
+_model predictions from tuned model vs actual outcomes_
+```{r}
+lasso_pred_plot_EC <- ggplot(lasso_residuals_EC, 
+                          aes(x = e.coli.cfu, 
+                              y = .pred)) + 
+  geom_point() + 
+  labs(title = "Predictions vs Actual: LASSO", 
+       x = "E. coli cfu Outcome", 
+       y = "E. coli cfu Prediction")
+lasso_pred_plot_EC
+```
+_plot residuals vs predictions_
+```{r}
+lasso_residual_plot_EC <- ggplot(lasso_residuals_EC, 
+                              aes(y = .resid, 
+                                  x = .pred)) + 
+  geom_point() + 
+  labs(title = "Predictions vs Residuals: LASSO", 
+       x = "E. coli cfu Prediction", 
+       y = "Residuals")
+plot(lasso_residual_plot_EC) #view plot
 ```
