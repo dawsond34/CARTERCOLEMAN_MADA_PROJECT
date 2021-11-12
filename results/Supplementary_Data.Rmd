@@ -5,26 +5,74 @@ date: "11/12/2021"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+_The following markdown serves as the supplementary materials for the UOWN Stream Health Indicators Project. Included materials are all figures relevant to my manuscript and were derived from the analysis code._
+
+</br>
+
+_Load needed libraries_
+```{r}
+library(knitr)    # For knitting document and include_graphics function
+library(ggplot2)  # For plotting
+library(png)      # For grabbing the dimensions of png files
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+</br>
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+_Figure 1: Plots of biological score versus conductivity, E. coli cfu, nitrate concentration, and turbidity for the MIDO site._
+```{r}
+bs_MIDO_location <- here::here("results", "MIDO_bs_lm.png")
 
-```{r cars}
-summary(cars)
+include_graphics(bs_MIDO_location)
 ```
 
-## Including Plots
+</br>
 
-You can also embed plots, for example:
+_Figure 2: Plots of E. coli cfu versus conductivity, nitrate concentration, and turbidity for the MIDO site._
+```{r}
+ecfu_MIDO_location <- here::here("results", "MIDO_ecfu_lm.png")
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+include_graphics(ecfu_MIDO_location)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+</br>
+
+_Figure 3: Plots of biological score versus conductivity, E. coli cfu, nitrate concentration, and turbidity for the NORO site._
+```{r}
+bs_NORO_location <- here::here("results", "NORO_bs_lm.png")
+
+include_graphics(bs_NORO_location)
+```
+
+</br>
+
+_Figure 4: Plots of E. coli cfu versus conductivity, nitrate concentration, and turbidity for the NORO site._
+```{r}
+ecfu_NORO_location <- here::here("results", "NORO_ecfu_lm.png")
+
+include_graphics(ecfu_NORO_location)
+```
+
+</br>
+
+_Figure 5: Plots of biological score versus conductivity, E. coli cfu, nitrate concentration, and turbidity for the BICO site._
+```{r}
+bs_BICO_location <- here::here("results", "BICO_bs_lm.png")
+
+include_graphics(bs_BICO_location)
+```
+
+</br>
+
+_Figure 6: Plots of E. coli cfu versus conductivity, nitrate concentration, and turbidity for the BICO site._
+```{r}
+ecfu_BICO_location <- here::here("results", "BICO_ecfu_lm.png")
+
+include_graphics(ecfu_BICO_location)
+```
+
+
+
+
+
+

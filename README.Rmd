@@ -5,6 +5,8 @@ date: "9/16/2021"
 output: html_document
 ---
 
+_Please run the "MADA_Project" file in this folder to ensure use of the correct working directory._
+
 # Overview: Comparison of Stream Health indicators
 
 ### The data I am using is the publically avaialable data provided by the Upper Oconee Watershed Network (UOWN). This data is part of a citizen science training effort for routine watershed-scale monitoring of the upper oconee river watershed. Trained freshwater scientists assist in training members of the community to collect both chemical and biological stream characteristics that are useful in describing stream health. All data is compliled and posted in raw form on the UOWN website. Of interest to me are the following variables: WSID (ID number),	biological_score,	conductivity, turbidity,	po4.mgL,	no3.mgL,	pH,	temperature,	e.coli.cfu,	month,	year,	day. The raw data shows 3,075 observations before cleaning. However, while cleaning I had to eliminate "po4.mgl" and "temperature" du to significant amounts of missing data.
