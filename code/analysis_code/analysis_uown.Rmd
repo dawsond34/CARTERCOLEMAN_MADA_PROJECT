@@ -64,9 +64,16 @@ BICO %>%
 ```
 
 </br>
+
 ### Load all the created linear models from the processing data markdown.
 _We need to load the exploratory linear models created previously in order to assess them for outliers that impact the linear regressions. This is because the cooksdistance() function calls for a linear model input.
+
+</br>
+
 #### MIDO
+
+</br>
+
 _Biological Score_
 ```{r}
 #Loading exploratory linear models for MIDO data with Biological Score as Outcome variable.
@@ -82,6 +89,9 @@ bs_no3_lm <- readRDS(BS_no3_location)
 BS_Turb_location <- here::here("data","processed_data","BS_Turb.rds")
 bs_turb_lm <- readRDS(BS_Turb_location)
 ```
+
+</br>
+
 _ECFU_
 ```{r}
 #Loading exploratory linear models for MIDO data with E. coli (cfu) as Outcome variable.
@@ -95,8 +105,12 @@ ECFU_Turb_location <- here::here("data","processed_data","BS_Turb.rds")
 ecfu_turb_lm <- readRDS(ECFU_Turb_location)
 ```
 
+</br>
 
 #### BICO
+
+</br>
+
 _Biological Score_
 ```{r}
 #Loading exploratory linear models for BICO data with Biological Score as Outcome variable.
@@ -112,6 +126,9 @@ b_bs_no3_lm <- readRDS(B_BS_no3_location)
 B_BS_Turb_location <- here::here("data","processed_data","B_BS_Turb.rds")
 b_bs_turb_lm <- readRDS(B_BS_Turb_location)
 ```
+
+</br>
+
 _ECFU_
 ```{r}
 #Loading exploratory linear models for BICO data with E. coli (cfu) as Outcome variable.
@@ -125,7 +142,12 @@ B_ECFU_Turb_location <- here::here("data","processed_data","B_BS_Turb.rds")
 b_ecfu_turb_lm <- readRDS(B_ECFU_Turb_location)
 ```
 
+</br>
+
 #### NORO
+
+</br>
+
 _Biological Score_
 ```{r}
 #Loading exploratory linear models for NORO data with Biological Score as Outcome variable.
@@ -141,6 +163,9 @@ n_bs_no3_lm <- readRDS(N_BS_no3_location)
 N_BS_Turb_location <- here::here("data","processed_data","N_BS_Turb.rds")
 n_bs_turb_lm <- readRDS(N_BS_Turb_location)
 ```
+
+</br>
+
 _ECFU_
 ```{r}
 #Loading exploratory linear models for NORO data with E. coli (cfu) as Outcome variable.
@@ -154,12 +179,20 @@ N_ECFU_Turb_location <- here::here("data","processed_data","N_BS_Turb.rds")
 n_ecfu_turb_lm <- readRDS(N_ECFU_Turb_location)
 ```
 
+</br>
 
 ### Outlier identification using Cook's Distance.
+
+</br>
+
 _Outliers in these data could be potentially ttreated as errors in reporting. This is because the data is predominantly collected by non-scientist volunteers, who have had training with scientists. As such, it is likely that sampling of mis-identification of macroinvertebrates taxa may occurred. Therefore, an argument can be made that assessing for anomalies in the data could help tease apart the true relationships that exist between different stream health indicators._
+
 </br>
+
 _As such, we will start by analyzing the data for outliers by evaluating relationships with cook's distance._
+
 </br>
+
 #### Set sample size for sample size parameter (4/n) for each data set (MIDO, NORO, BICO)
 ```{r}
 #This makes an argument that makes the sum number of rows in a particular data set equal to the sample size of the data set and names it accordingly.
@@ -167,9 +200,13 @@ sample_size_MIDO <- nrow(MIDO)
 sample_size_NORO <- nrow(NORO)
 sample_size_BICO <- nrow(BICO)
 ```
+
 </br>
+
 #### MIDO
+
 </br>
+
 _Outcome: Biological Score_
 ```{r}
 #Creates a dataframe that stores the cook's distance analysis of influential data points.
@@ -206,7 +243,9 @@ plot(ecfu_turb_cd, pch="*", cex=2, main="MIDO: Turbidity vs. E. coli CFU with Ou
 abline(h = 4/sample_size_MIDO, col="red")
 ```
 </br>
+
 #### NORO
+
 </br>
 _Outcome: Biological Score_
 ```{r}
@@ -228,6 +267,7 @@ plot(n_bs_turb_cd, pch="*", cex=2, main="NORO: Turbidity vs. Biological Score wi
 abline(h = 4/sample_size_NORO, col="red")
 ```
 </br>
+
 _Outcome: E.coli CFU_
 ```{r}
 #Creates a dataframe that stores the cook's distance analysis of influential data points.
@@ -244,8 +284,11 @@ plot(n_ecfu_turb_cd, pch="*", cex=2, main="NORO: Turbidity vs. E. coli CFU with 
 abline(h = 4/sample_size_NORO, col="red")
 ```
 </br>
+
 #### BICO
+
 </br>
+
 _Outcome: Biological Score_
 ```{r}
 #Creates a dataframe that stores the cook's distance analysis of influential data points.
@@ -266,6 +309,7 @@ plot(b_bs_turb_cd, pch="*", cex=2, main="BICO: Turbidity vs. Biological Score wi
 abline(h = 4/sample_size_BICO, col="red")
 ```
 </br>
+
 _Outcome: E.coli CFU_
 ```{r}
 #Creates a dataframe that stores the cook's distance analysis of influential data points.
@@ -282,15 +326,23 @@ plot(b_ecfu_turb_cd, pch="*", cex=2, main="BICO: Turbidity vs. E. coli CFU with 
 abline(h = 4/sample_size_BICO, col="red")
 ```
 </br>
+
 _The results of the Cook's Distance show that while there are outliers, very few of them actually exceed a Cook's Distance value (CDV) of 1. The CDV value of 1 is significant because it is the statistical community consensus value that indicates an influential outlier. As such, it is my educated opinion to leave all data points in, as I do not believe they are skewing liner modle results in a significant enough way to warrant removal._
+
 </br>
 
 # Part 2: Linear Model Fit Assessment for MIDO Data
+
 </br>
+
 _At this point,the main take-aways from data analysis thus far is that correlation of stream health indicators showed that most interactions were non-significant, with the exception of E. coli (cfu) and turbidity. Additionally, the data set is most likely not skewed by influential outliers._
+
 </br>
+
 _Moving forward, I want to focus in on just the MIDO dataset. As you can tell, working with many variables in three different data sets can be quite cumbersome to read through. For ease of interpretation, the MIDO data set will serve as the data frame where I test how robust the linear fit models actually are for the data. MIDO is the only data set large enough that when we split the data set into a "test" and "train" data set, I actually have confidence in the resulting model fit analysis. For comparison, MIDO has an n = 88; NORO has an n = 35; and BICO has an n = 23. The only thing we are missing by dropping the other sites is assessing site-by-site comparison, which I am choosing not to focus on anyway._
+
 </br>
+
 #### Splitting MIDO Data
 _As discussed above, we need to split the MIDO data into a test and train data set. We do this to see if we get approximately the same linear relationship between the larger (75% of MIDO) train data and the smaller (25% of MIDO) test data._
 ```{r}
@@ -301,7 +353,9 @@ data_split <- initial_split(MIDO, prop = 3/4)
 train_data <- training(data_split)
 test_data  <- testing(data_split)
 ```
+
 </br>
+
 _Create a recipe for each linear model relationship in the MIDO dataframe._
 ```{r}
 Recipe_bs_con <- recipe(biological_score ~ conductivity.uscm, data = MIDO)
@@ -312,12 +366,18 @@ Recipe_ecfu_con <- recipe(e.coli.cfu ~ e.coli.cfu, data = MIDO)
 Recipe_ecfu_no3 <- recipe(e.coli.cfu ~ no3.mgL, data = MIDO)
 Recipe_ecfu_turb <- recipe(e.coli.cfu ~ turbidity.ntu, data = MIDO)
 ```
+
+</br>
+
 _With our seven linear model recipes created, we will define of linear regression model pipe._
 ```{r}
 linear_mod <- linear_reg() %>% 
   set_engine("lm") %>%
   set_mode("regression")
 ```
+
+</br>
+
 _Next, create a workflow that adds our seven recipes and model together._
 ```{r}
 #Biological Score and Conductivity
@@ -363,10 +423,13 @@ ecfu_turb_wflow <-
   add_recipe(Recipe_ecfu_turb)
 ```  
 
+</br>
 
 ## Modeling Train Data Predictions Using Workflows
 _Using the workflow above, lets now fit each pf the seven stream health indicator linear models to the train data set._
+
 </br>
+
 _Defining a command that runs model fitting to each of the seven models_
 ```{r}
 bs_con_fit <- 
@@ -397,7 +460,9 @@ ecfu_turb_fit <-
   ecfu_turb_wflow %>% 
   fit(data = train_data)
 ```
+
 </br>
+
 _Pull linear regression fit models using parsnip()._
 ```{r}
 bs_con_fit %>% 
@@ -429,6 +494,7 @@ ecfu_turb_fit %>%
   tidy()
 ```
 </br>
+
 #### Using Workflows to Make Predictions in the train data set.
 _This is important because we are basically going to try and recreate the actual MIDO data set using the test and trained data and our linear models. We will eventually compare the test data predictions with the train data predictions to assess if our model is actually a good estimator of the relationships between stream health indicators. Additionally, this prediction step allows us to "artificially" create a larger n for our data, allowing fit to be assessed more accurately. This will be done using the augment() function to make predicted outcomes in the test and train data._
 ```{r}
@@ -452,9 +518,13 @@ ecfu_no3_aug <-
 
 ecfu_turb_aug <- 
   augment(ecfu_turb_fit, train_data)
-```  
+```
+
 </br>
+
 #### Using Root Mean Squared Error (RMSE) to Assess Model Fit.
+
+</br>
 
 _Assessing fit for train data predictions by calculating RMSE for the test data predictions of stream health indicator linear relationships._
 ```{r}
@@ -480,11 +550,16 @@ ecfu_turb_aug %>%
   rmse(truth = e.coli.cfu, .pred)
 ```
 </br>
+
 #####Analysis here#####
+
 </br>
+
 ## Modeling Test Data Predictions Using Workflows
 _Using the workflow above, lets now fit each pf the seven stream health indicator linear models to the test data set._
+
 </br>
+
 _Defining a command that runs model fitting to each of the seven models_
 ```{r}
 bs_con_fit_test <- 
@@ -515,7 +590,9 @@ ecfu_turb_fit_test <-
   ecfu_turb_wflow %>% 
   fit(data = test_data)
 ```
+
 </br>
+
 _Pull linear regression fit models using parsnip()._
 ```{r}
 bs_con_fit_test %>% 
@@ -547,7 +624,9 @@ ecfu_turb_fit_test %>%
   tidy()
 ```
 #####Analysis here#####
+
 </br>
+
 #### Using Workflows to Make Predictions in the test data set.
 _This is important because we are basically going to try and recreate the actual MIDO data set using the test and trained data and our linear models. This prediction step allows us to "artificially" create a larger n for our data, allowing fit to be assessed more accurately for data predicted from split data. This will be done using the augment() function to make predicted outcomes in the test and train data._
 ```{r}
@@ -572,7 +651,9 @@ ecfu_no3_aug_test <-
 ecfu_turb_aug_test <- 
   augment(ecfu_turb_fit, test_data)
 ```  
+
 </br>
+
 #### Using Root Mean Squared Error (RMSE) to Assess Model Fit.
 
 _Assessing fit for train data predictions by calculating RMSE for the test data predictions of stream health indicator linear relationships._
@@ -598,6 +679,8 @@ ecfu_no3_aug_test %>%
 ecfu_turb_aug_test %>%
   rmse(truth = e.coli.cfu, .pred)
 ```
+</br>
+
 #### Save significant Test and Train linear models to the results folder.
 ```{r}
 #Create a location and save linear model for E. coli (cfu) in the MIDO train data.
@@ -608,7 +691,9 @@ saveRDS(ecfu_con_fit, file = MIDO_ECFU_Con_fit_location)
 MIDO_ECFU_Con_fit_test_location <- here::here("results","MIDO_ECFU_Con_fit_test.rds")
 saveRDS(ecfu_con_fit_test, file = MIDO_ECFU_Con_fit_test_location)
 ```
+
 </br>
+
 #### Save significant Test and Train RMSE to the results folder.
 ```{r}
 #Create a location and save RMSE for E. coli (cfu) in the MIDO train data.
@@ -648,7 +733,6 @@ _Set seed: This sets a random number generator with initial (pseudo)random value
 set.seed(123)
 ```
 
- _Test/Train data split: Split data into a training data set and a test data set. The training set will contain most of the original data (70%), while the test data set will have a smaller portion (30%). The training data is used to fit a model and the test data is to assess how good of a fit the data is._
 
 </br>
 
@@ -688,7 +772,7 @@ _Creates null model recipe. When we call this term, it will indicate in our work
 Null_recipe_lm <- recipe(biological_score ~ 1, data = MIDO_LASSO)
 ```
 
-_Creating the Workflow: this creates a set workflow for running a null linear regression model with body temperature as the outcome._
+_Creating the Workflow: this creates a set workflow for running a null linear regression model with biological score as the outcome._
 ```{r}
 null_wf <- workflow() %>% add_model(lm_mod) %>% add_recipe(Null_recipe_lm)
 ```
@@ -697,13 +781,13 @@ _Here, I am going to fit the null model created in the above workflow to the fol
 ```{r}
 null_lm <- fit_resamples(null_wf, resamples = fold_BS)
 ```
-_Calculate RMSE for the train data linear model._
+_Calculate RMSE for the Null linear model._
 ```{r}
 Null_Met <- collect_metrics(null_lm)
 
 Null_Met
 ```
-_RMSE = 6.63, with a standard deviation of 0.13. This will serve as our check to test our models against latter on.
+_RMSE = 6.63, with a standard deviation of 0.13. This will serve as our check to test our models against latter on._
 
 </br>
 
@@ -756,7 +840,9 @@ _Plot model performance using autoplot()_
 ```{r}
 #Plot of MIDO data LASSO model performance
 lasso_resample %>%
-  autoplot()
+  autoplot(main="MIDO Data LASSO Performance")
+
+
 ```
 
 _Showing and selecting best performing Models_
@@ -831,8 +917,6 @@ _Set seed: This sets a random number generator with initial (pseudo)random value
 set.seed(123)
 ```
 
- _Test/Train data split: Split data into a training data set and a test data set. The training set will contain most of the original data (70%), while the test data set will have a smaller portion (30%). The training data is used to fit a model and the test data is to assess how good of a fit the data is._
-
 </br>
 
 ## Null Model For MIDO Data
@@ -843,7 +927,7 @@ _5-fold cross validation, 5 times repeated for MIDO data: Here we are setting a 
 fold_EC <- vfold_cv(MIDO_LASSO, v = 5, repeats = 5, strata = e.coli.cfu)
 ```
 
-_Creating the recipe for Biological Score vs all predictors_
+_Creating the recipe for E. coli cfu vs all predictors_
 
 ```{r}
 EC.recipe <- 
@@ -853,7 +937,7 @@ EC.recipe <-
   
 EC.recipe
 ```
-_Setting linear regression model to assess relationship between Biological Score (outcome) and all other predictor variables._
+_Setting linear regression model to assess relationship between E. coli cfu (outcome) and all other predictor variables._
 ```{r}
 lm_mod <- linear_reg() %>% set_engine("lm") %>% set_mode("regression")
 ```

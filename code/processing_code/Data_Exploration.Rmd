@@ -23,10 +23,12 @@ library(gridExtra)
 
 #### Loading the data from the processing script. Note that because you are loading a library at the beginning, it may either take a while or take several tries.
 ```{r}
+#Creates locations from file pathways that the required data frame .RDS files are stored.
 MIDO_location <- here::here("data","processed_data","MIDO.RDS")
 NORO_location <- here::here("data","processed_data","NORO.RDS")
 BICO_location <- here::here("data","processed_data","BICO.RDS")
 
+#Reads files called from defined locations
 MIDO <- readRDS(MIDO_location)
 NORO <- readRDS(NORO_location)
 BICO <- readRDS(BICO_location)
@@ -51,6 +53,7 @@ _This section of regression analysis and plotting deals exclusively with the MID
 #### Biological Vs Conductivity:
 _This plot shows the relationship between biological score as a function of conductivity._
 ```{r}
+#Plot biological score vs. conductivity
 BS_Con <- MIDO %>% 
   ggplot(aes(x=(conductivity.uscm), 
              y=(biological_score))) +
@@ -64,6 +67,7 @@ print(BS_Con)
 
 #### Now run linear regression for BS_Con.
 ```{r}
+#Linear regression analysis for biological score versus conductivity.
 BS_Con_lm <- lm(biological_score ~ conductivity.uscm, data=MIDO)
 
 summary(BS_Con_lm)
@@ -76,6 +80,7 @@ summary(BS_Con_lm)
 #### Biological Vs Turbidity:
 _This plot shows the relationship between biological score as a function of turbidity._
 ```{r}
+#Plot biological score vs. turbidity
 BS_Turb <- MIDO %>%
   ggplot(aes(x=turbidity.ntu, y=biological_score)) +
   geom_point(color = "blue") +
@@ -161,7 +166,9 @@ ggsave(MIDO_bs_lm, file = MIDO_bs_lm_location)
 ```
 </br>
 ### *E. Coli*
+
 </br>
+
 #### E. Coli Vs Conductivity
 _This plot shows the relationship between E. coli (cfu) as a function of Conductivity._
 ```{r}

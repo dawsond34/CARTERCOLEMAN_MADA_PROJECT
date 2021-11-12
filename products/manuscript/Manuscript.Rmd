@@ -15,38 +15,9 @@ bibliography: ../references.bib
 csl: ../apa.csl
 ---
 
-
-```{r, echo=FALSE, results='hide', message=FALSE}
-#Load important packages:
-library(tidyverse)
-library(readxl)
-library(here)
-library(png)
-library(knitr)
-```
-
-</br>
-
-```{r, warning=FALSE, echo=FALSE, results='hide'}
-#Lodaing data and providing a summary for the raw data
-data_location <- here::here("data/raw_data/UOWN_data_master_spring2021 (2).xlsx")
-rawdata <- readxl::read_excel(data_location)
-glimpse(rawdata)
-```
-
-```{r, echo=FALSE, results='hide'}
-#Set the location of the desired dataframes
-MIDO_location <- here::here("data","processed_data","MIDO.RDS")
-NORO_location <- here::here("data","processed_data","NORO.RDS")
-BICO_location <- here::here("data","processed_data","BICO.RDS")
-
-#Load in the Dataframes
-MIDO <- readRDS(MIDO_location)
-NORO <- readRDS(NORO_location)
-BICO <- readRDS(BICO_location)
-```
-
 # Summary/Abstract
+
+
 
 </br>
 
@@ -113,83 +84,41 @@ _7. Because the number of rows between each site data frame and between years is
 _The following is an exploration of Stream Health Indicator correlation and comparison. The exploration will be structured as follows:_
 _Each dataframe (MIDO, NORO, and BICO) will be analyzed separately. Within each dataframe, there are data explaining biological indicator values, stream chemistry, and fecal indicators over time. The only group with multiple components is stream chemistry. I plan to do a series of correlative analysis showing if there is some sort of relationship between the three indicator types to help inform further analysis via principle component, multivariate analysis, etc. Therefore, the goal of this exploration is basically to summarize how these indicators correlate._
 
-### Below is the Linear Regression analysis from the Exploratory Data Analysis
-
-#### MIDO
-
-_Outcome: Biological Score_
-```{r, echo=FALSE}
-#Define data location
-MIDO_bs_lm_location <- here::here("results","MIDO_bs_lm.png")
-#Load in saved image from results folder
-include_graphics(MIDO_bs_lm_location)
-```
-_Outcome: E. coli (cfu)_
-```{r, echo=FALSE}
-#Define data location
-MIDO_ecfu_lm_location <- here::here("results","MIDO_ECFU_lm.png")
-#Load in the data
-include_graphics(MIDO_ecfu_lm_location)
-```
-
-#### BICO
-
-_Outcome: Biological Score_
-```{r, echo=FALSE}
-#Define data location
-BICO_bs_lm_location <- here::here("results","BICO_bs_lm.png")
-#Load in saved image from results folder
-include_graphics(BICO_bs_lm_location)
-```
-_Outcome: E. coli (cfu)_
-```{r, echo=FALSE}
-#Define data location
-BICO_ecfu_lm_location <- here::here("results","BICO_ECFU_lm.png")
-#Load in the data
-include_graphics(BICO_ecfu_lm_location)
-```
-
-#### NORO
-
-_Outcome: Biological Score_
-```{r, echo=FALSE}
-#Define data location
-NORO_bs_lm_location <- here::here("results","NORO_bs_lm.png")
-#Load in saved image from results folder
-include_graphics(NORO_bs_lm_location)
-```
-_Outcome: E. coli (cfu)_
-```{r, echo=FALSE}
-#Define data location
-NORO_ecfu_lm_location <- here::here("results","NORO_ECFU_lm.png")
-#Load in the data
-include_graphics(NORO_ecfu_lm_location)
-```
-</br>
-
 ## Full analysis
 
 _At this point,the main take-aways from data analysis thus far is that correlation of stream health indicators showed that most interactions were non-significant, with the exception of E. coli (cfu) and turbidity. Additionally, the data set is most likely not skewed by influential outliers._
 
 </br>
 
-_Moving forward, I want to focus in on just the MIDO dataset. As you can tell, working with many variables in three different data sets can be quite cumbersome to read through. For ease of interpretation, the MIDO data set will serve as the data frame where I test how robust the linear fit models actually are for the data. MIDO is the only data set large enough that when we split the data set into a "test" and "train" data set, I actually have confidence in the resulting model fit analysis. For comparison, MIDO has an n = 88; NORO has an n = 35; and BICO has an n = 23. The only thing we are missing by dropping the other sites is assessing site-by-site comparison, which I am choosing not to focus on anyway._
+_Following correlation analysis during exploration, focus was shifted to just the MIDO dataset. As you can tell, working with many variables in three different data sets can be quite cumbersome to read through. For ease of interpretation, the MIDO data set will serve as the data frame where I test how robust the linear fit models actually are for the data. MIDO is the only data set large enough that when we split the data set into a "test" and "train" data set, I actually have confidence in the resulting model fit analysis. For comparison, MIDO has an n = 88; NORO has an n = 35; and BICO has an n = 23. The only thing we are missing by dropping the other sites is assessing site-by-site comparison, which I am choosing not to focus on anyway._
 
 </br>
 
-_The results indicated that only the relationship between E. Coli (cfu) and Conductivity were significant for both the train data (p = 1.374747e-05) and test data (p = 1.89214e-06). However, both models had high RMSE values, indicating that the models did not fit the data well and could not be used to predict E. coli (cfu) from conductivity, despite a significant relationship._
+_Finally, LASSO analyses were performed with either biological score or E. coli cfu as the outcome of choice. The LASSO model analyzed which combination of stream health descriptive variables are the best for predicting either biological score or E. coli cfu values for the MIDO site through time._
+
+</br>
+
+_The results indicated that only the relationship between E. Coli (cfu) and Conductivity were significant for both the train data (p = 1.374747e-05) and test data (p = 1.89214e-06). However, both models had high RMSE values, indicating that the models did not fit the data well and could not be used to predict E. coli (cfu) from conductivity, despite a significant relationship. To test how well the LASSO models performed and how well they fit our data, Root Mean Squared Error (RMSE) was calculated for each model produced and for predicted values of MIDO stream health variables, using the LASSO models. Residuals between actual and predicted values were calculated to show how well the models could predict values. Finally, all RMSE values (actual and predicted data models) were compared to a null model for both biological score and E. coli cfu to evaluate model performance._
+
+</br>
+
+_The null linear models for biological score and E. coli cfu produced a RMSE = 6.63, with a standard deviation of 0.13 and RMSE = 0.52, with a standard deviation of 0.014, respectively. Results from the biological score LASSO machine learning model indicated that model 47 is the best performing models (RMSE = 6.50; STE = 0.16). However, based on comparative RMSE scores, model 47 does not really perform any better than the null model. This indicates that it is a bad fit to the MIDO data. Results from the E. coli cfu LASSO machine learning model indicated that model 41 is the best performing models (RMSE = 0.50; STE = 0.012). However, based on comparative RMSE scores, model 41 does not really perform any better than the null model. This indicates that it is a bad fit to the MIDO data._
 
 </br>
 
 # Discussion
 
-## Summary and Interpretation
+</br>
 
-## Strengths and Limitations
+_Based on the linear modeling exploratory analysis and LASSO modeling for best combination of predictors, the results indicate that combinations of the variables biological score, E. coli cfu, nitrate concentration, conductivity, and turbidity are not able to predict values for biological score or E. coli cfu. This indicates that one cannot predict one measure of stream health from another. This is seen by a lack of consistent significant correlations between each stream health predictor and either biological score or E. coli cfu as well as LASSO modeling to find the ideal combination of stream health variables to predict biological score or E. coli cfu. Given these results, it is likely that the data was biased due to the  inconsistent and opportunistic sampling efforts done by citizen science [find citation for lack of reliability for citizen science data]. When examining the data set, many values were observed to be missing, with a disproportionate amount of extent observations in what I suspect to be the more easily collected stream health variables. For example, significantly more NA observations were included in the biological score column relative to variables like turbidty and conductivity. This is because both turbidity and conductivity can be measured in situ with a meter in a matter of minutes, while biological score is calculated following collection and identification of macroinvertebrate families from samples [find reference for biological score assessment methodology]. Therefore, biological score is much harder to measure. Additionally, E. coli cfu is processed by culturing E. coli from samples and generally requires a trained scientist to do [find reference for E. coli cfu qunatification methods]. While confidence in values may be greater in this case, there is know a shortage of labor due to need for a specialized skill set to process and quantify E. coli cfu values._
 
+</br>
 
 ## Conclusions
 
+</br>
+
+_Based the results of this study, I would recommend that existing methodology for UOWN stream health characterization and monitoring be re-evaluated. The issue being that there seems to be a disparity in sampling effort, both in quality of samples and time spent sampling, for each different stream health metric. The result being that the term "healthy stream" does not have a unified definition in terms of the metrics used to quantify stream health. I would suggest future scientific studies be conducted to assess to relationship between stream health metrics in order to be able to predict metrics like biological score and E. coli cfu so citizen based monitoring does not have to collect these data while still having easier to measure variables that can be used to describe stream health in terms of biological score and E. coli cfu._
 
 # References
 
