@@ -2,7 +2,9 @@
 title: "analysis_uown"
 author: "C. Coleman"
 date: "10/27/2021"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 ---
 
 # UOWN Data Analysis for Determining Correlation Between Stream Health Indicators.
@@ -18,13 +20,19 @@ _Therefore, the following constitutes the statistical analysis protocol that wil
 _1. Assess each linear relationship previously performed for outliers in the data;_
 _2. Determine if it is appropriate to remove outliers;_
 _3. Rerun linear regressions for the different stream health indicator relationships and assess if more significant relationships exist._
+
 </br>
-#### Part 2: Linear Model Fit Analysis of MIDO Data
+
+#### PART 2: Linear Model Fit Analysis of MIDO Data
 _1. Conduct test/train data splitting for MIDO Data._
 _2. Conduct linear modeling for relationships between stream health indicator predictors (Biological Score, E. Coli (cfu), Conductivity, NO3 (mg/L), and Turbidity) in the form of a workflow for the Test and Train MIDO data._
 _3. Predict values for Test and Train MIDO data._
 _4. Assess how well the MIDO linear model suite of relationships (Biological Score, E. Coli (cfu), Conductivity, NO3 (mg/L), and Turbidity) fir the test and train data using Root Mean Square Error (rmse). The result will measure how good of a fit the created models are to the data._
 
+</br>
+
+#### PART 3: LASSO Modeling MIDO Data
+_Conduct LASSO modeling of linear regression between Biological Score and all other variables and E. coli CFU and all other variables. Cross validation well be done by calculating RMSE for all models and compared to the RMSE for linear regression modeling of a Null model. Additionally, The best model will be selected using the R function select_best(), for which residuals will be calculated between predicted and actual data._
 
 ### Required packages
 ```{r}
@@ -35,6 +43,7 @@ library(here) #setting pathways for saving files
 library(rpart) #Model fitting
 library(ranger) #Model fitting
 library(glmnet) #Model fitting
+library(knitr) #saving tables
 ```
 
 
@@ -481,7 +490,7 @@ bs_turb_fit %>%
   extract_fit_parsnip() %>% 
   tidy()
 
-ecfu_con_fit %>% 
+Ecoli_con_lm <- ecfu_con_fit %>% 
   extract_fit_parsnip() %>% 
   tidy()
 
@@ -540,7 +549,7 @@ bs_no3_aug %>%
 bs_turb_aug %>%
   rmse(truth = biological_score, .pred)
  
-ecfu_con_aug %>%
+Ecoli_con_RMSE <- ecfu_con_aug %>%
   rmse(truth = e.coli.cfu, .pred)
   
 ecfu_no3_aug %>%
@@ -549,9 +558,6 @@ ecfu_no3_aug %>%
 ecfu_turb_aug %>%
   rmse(truth = e.coli.cfu, .pred)
 ```
-</br>
-
-#####Analysis here#####
 
 </br>
 
@@ -611,7 +617,7 @@ bs_turb_fit_test %>%
   extract_fit_parsnip() %>% 
   tidy()
 
-ecfu_con_fit_test %>% 
+Ecoli_con_test_lm <- ecfu_con_fit_test %>% 
   extract_fit_parsnip() %>% 
   tidy()
 
@@ -623,7 +629,6 @@ ecfu_turb_fit_test %>%
   extract_fit_parsnip() %>% 
   tidy()
 ```
-#####Analysis here#####
 
 </br>
 
@@ -670,7 +675,7 @@ bs_no3_aug_test %>%
 bs_turb_aug_test %>%
   rmse(truth = biological_score, .pred)
  
-ecfu_con_aug_test %>%
+Ecoli_con_RMSE_test <- ecfu_con_aug_test %>%
   rmse(truth = e.coli.cfu, .pred)
   
 ecfu_no3_aug_test %>%
@@ -683,26 +688,36 @@ ecfu_turb_aug_test %>%
 
 #### Save significant Test and Train linear models to the results folder.
 ```{r}
-#Create a location and save linear model for E. coli (cfu) in the MIDO train data.
-MIDO_ECFU_Con_fit_location <- here::here("results","MIDO_ECFU_Con_fit.rds")
-saveRDS(ecfu_con_fit, file = MIDO_ECFU_Con_fit_location)
+#Create a table for E. coli (cfu) as a function of Conductivity Linear Fit Model in the MIDO train data.
+MIDO_ECFU_Con_fit <- kable(as.tibble(Ecoli_con_lm),
+      caption = "Linear Fit Model: E. Coli CFU predicted by Conductivity in the Trained MIDO Data Set")
 
-#Create a location and save linear model for E. coli (cfu) in the MIDO test data.
-MIDO_ECFU_Con_fit_test_location <- here::here("results","MIDO_ECFU_Con_fit_test.rds")
-saveRDS(ecfu_con_fit_test, file = MIDO_ECFU_Con_fit_test_location)
+MIDO_ECFU_Con_fit
+
+#Create a table for E. coli (cfu) as a function of Conductivity Linear Fit Model in the MIDO test data.
+
+MIDO_ECFU_Con_fit_test <- kable(as.tibble(Ecoli_con_test_lm),
+      caption = "Linear Fit Model: E. Coli CFU predicted by Conductivity in the Test MIDO Data Set")
+
+MIDO_ECFU_Con_fit_test
 ```
 
 </br>
 
 #### Save significant Test and Train RMSE to the results folder.
 ```{r}
-#Create a location and save RMSE for E. coli (cfu) in the MIDO train data.
-MIDO_ECFU_Con_RMSE_location <- here::here("results","MIDO_ECFU_Con_RMSE.rds")
-saveRDS(ecfu_con_aug, file = MIDO_ECFU_Con_RMSE_location)
+#Create a table for E. coli (cfu) as a function of Conductivity Linear Fit Model RMSE in the MIDO train data.
+MIDO_ECFU_Con_RMSE <- kable(as.tibble(Ecoli_con_RMSE),
+      caption = "Root Mean Square Error: E. Coli CFU predicted by Conductivity in the Trained MIDO Data Set")
 
-#Create a location and save linear RMSE for E. coli (cfu) in the MIDO test data.
-MIDO_ECFU_Con_RMSE_test_location <- here::here("results","MIDO_ECFU_Con_RMSE_test.rds")
-saveRDS(ecfu_con_aug_test, file = MIDO_ECFU_Con_RMSE_test_location)
+MIDO_ECFU_Con_RMSE
+
+#Create a table for E. coli (cfu) as a function of Conductivity Linear Fit Model RMSE in the MIDO test data.
+
+MIDO_ECFU_Con_RMSE_test <- kable(as.tibble(Ecoli_con_RMSE),
+      caption = "Root Mean Square Error: E. Coli CFU predicted by Conductivity in the Test MIDO Data Set")
+
+MIDO_ECFU_Con_RMSE_test
 ```
 
 # Part 3: LASSO Modeling for Ideal Combination of Stream Health Indicators to Predict Biological SCore and E. Coli Colony Forming Units in MIDO Data.
@@ -785,6 +800,9 @@ _Calculate RMSE for the Null linear model._
 ```{r}
 Null_Met <- collect_metrics(null_lm)
 
+Null_Met <- kable(Null_Met,
+      caption = "Root Mean Squared Error and Standard Deviation for Biological Score Null Linear Model")
+
 Null_Met
 ```
 _RMSE = 6.63, with a standard deviation of 0.13. This will serve as our check to test our models against latter on._
@@ -848,12 +866,17 @@ lasso_resample %>%
 _Showing and selecting best performing Models_
 ```{r}
 #Showing best performing LASSO models
-lasso_resample %>%
+top_five_bs <- lasso_resample %>%
   show_best()
   
 #Selects best performing model
 best_lasso <- lasso_resample %>%
   select_best()
+
+Best_LASSO_BS <- kable(top_five_bs,
+      caption = "Top 5 best performing LASSO Models for Biological Score as the Outcome")
+
+Best_LASSO_BS
 ```
 
 _This shows that model 47 is the best performing models (RMSE = 6.50; STE = 0.16). However, it doesn't really perform any better than the null model, making it a bad fit to the data._
@@ -894,7 +917,15 @@ lasso_pred_plot <- ggplot(lasso_residuals,
        x = "Biological Score Outcome", 
        y = "Biological Score Prediction")
 lasso_pred_plot
+
+#save plot
+lasso_pred_plot_BS_location <- here::here("results", "lasso_prediction_plot_BS.png")
+
+ggsave(lasso_pred_plot_BS_location)
 ```
+
+</br>
+
 _plot residuals vs predictions_
 ```{r}
 lasso_residual_plot <- ggplot(lasso_residuals, 
@@ -971,6 +1002,10 @@ _Calculate RMSE for the train data linear model._
 ```{r}
 Null_Met_EC <- collect_metrics(null_lm_EC)
 
+
+Null_Met_EC <- kable(Null_Met_EC,
+      caption = "Root Mean Squared Error and Standard Deviation for E. coli cfu Null Linear Model")
+
 Null_Met_EC
 ```
 _RMSE = 0.52, with a standard deviation of 0.014. This will serve as our check to test our models against latter on._
@@ -1032,12 +1067,17 @@ lasso_resample_EC %>%
 _Showing and selecting best performing Models_
 ```{r}
 #Showing best performing LASSO models
-lasso_resample_EC %>%
+top_five_ec <- lasso_resample_EC %>%
   show_best()
   
 #Selects best performing model
 best_lasso_EC <- lasso_resample_EC %>%
   select_best()
+
+Best_LASSO_EC <- kable(top_five_ec,
+      caption = "Top 5 best performing LASSO Models for E. coli cfu as the Outcome")
+
+Best_LASSO_EC
 ```
 
 _This shows that model 41 is the best performing models (RMSE = 0.50; STE = 0.012). However, it doesn't really perform any better than the null model, making it a bad fit to the data._
@@ -1078,6 +1118,11 @@ lasso_pred_plot_EC <- ggplot(lasso_residuals_EC,
        x = "E. coli cfu Outcome", 
        y = "E. coli cfu Prediction")
 lasso_pred_plot_EC
+
+#save plot
+lasso_pred_plot_EC_location <- here::here("results", "lasso_prediction_plot_EC.png")
+
+ggsave(lasso_pred_plot_EC_location)
 ```
 _plot residuals vs predictions_
 ```{r}

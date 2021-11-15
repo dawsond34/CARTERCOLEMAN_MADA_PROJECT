@@ -176,7 +176,17 @@ pre code {
 <h1>UOWN Data Analysis for Determining Correlation Between Stream Health Indicators.</h1>
 <p></br> <em>The following markdown conducts the statistical analysis of how different indicators of stream health can potentially predict each other. In the previous processing script, the main take away was that there were very few significant relationships between different chemical, fecal/microbial and biological indicators. The only significant relationships found between Turbity and E. Coli CFU. However, It struck me as peculiar to see biological indicator score and conductivity to have only one significant relationship. After further review of the exploratory figures, I now want to assess the data and relationships explored thus far for impact of outliers, determine if it is appropriate to remove outlying values, and see if this helps find more significant relationships.</em> <em>The second part will include test/train splitting to predict stream health indicator values in the MIDO data set and assess the fit of linear models to the MIDO data. This is a more depth recreation of the linear model exploration. Obviously, we found that there weren’t any significant relationships in exploratory analysis. However, this gives us a chance to assess how good a fit the models are in order to see if its even worth looking at the relationships.</em></p>
 <p></br></p>
-<p><em>Therefore, the following constitutes the statistical analysis protocol that will be conducted in this markdown:</em> </br> #### PART 1: Outliers in stream health indicator (Biological Score, E. Coli (cfu), Conductivity, NO3 (mg/L), and Turbidity) linear relationships. <em>1. Assess each linear relationship previously performed for outliers in the data;</em> <em>2. Determine if it is appropriate to remove outliers;</em> <em>3. Rerun linear regressions for the different stream health indicator relationships and assess if more significant relationships exist.</em> </br> #### Part 2: Linear Model Fit Analysis of MIDO Data <em>1. Conduct test/train data splitting for MIDO Data.</em> <em>2. Conduct linear modeling for relationships between stream health indicator predictors (Biological Score, E. Coli (cfu), Conductivity, NO3 (mg/L), and Turbidity) in the form of a workflow for the Test and Train MIDO data.</em> <em>3. Predict values for Test and Train MIDO data.</em> <em>4. Assess how well the MIDO linear model suite of relationships (Biological Score, E. Coli (cfu), Conductivity, NO3 (mg/L), and Turbidity) fir the test and train data using Root Mean Square Error (rmse). The result will measure how good of a fit the created models are to the data.</em></p>
+<p><em>Therefore, the following constitutes the statistical analysis protocol that will be conducted in this markdown:</em> </br> #### PART 1: Outliers in stream health indicator (Biological Score, E. Coli (cfu), Conductivity, NO3 (mg/L), and Turbidity) linear relationships. <em>1. Assess each linear relationship previously performed for outliers in the data;</em> <em>2. Determine if it is appropriate to remove outliers;</em> <em>3. Rerun linear regressions for the different stream health indicator relationships and assess if more significant relationships exist.</em></p>
+<p></br></p>
+<div id="part-2-linear-model-fit-analysis-of-mido-data" class="section level4">
+<h4>PART 2: Linear Model Fit Analysis of MIDO Data</h4>
+<p><em>1. Conduct test/train data splitting for MIDO Data.</em> <em>2. Conduct linear modeling for relationships between stream health indicator predictors (Biological Score, E. Coli (cfu), Conductivity, NO3 (mg/L), and Turbidity) in the form of a workflow for the Test and Train MIDO data.</em> <em>3. Predict values for Test and Train MIDO data.</em> <em>4. Assess how well the MIDO linear model suite of relationships (Biological Score, E. Coli (cfu), Conductivity, NO3 (mg/L), and Turbidity) fir the test and train data using Root Mean Square Error (rmse). The result will measure how good of a fit the created models are to the data.</em></p>
+<p></br></p>
+</div>
+<div id="part-3-lasso-modeling-mido-data" class="section level4">
+<h4>PART 3: LASSO Modeling MIDO Data</h4>
+<p><em>Conduct LASSO modeling of linear regression between Biological Score and all other variables and E. coli CFU and all other variables. Cross validation well be done by calculating RMSE for all models and compared to the RMSE for linear regression modeling of a Null model. Additionally, The best model will be selected using the R function select_best(), for which residuals will be calculated between predicted and actual data.</em></p>
+</div>
 <div id="required-packages" class="section level3">
 <h3>Required packages</h3>
 <pre class="r"><code>library(tidyverse) #Working with multiple Tidy packages</code></pre>
@@ -206,7 +216,7 @@ pre code {
 ## x dplyr::lag()      masks stats::lag()
 ## x yardstick::spec() masks readr::spec()
 ## x recipes::step()   masks stats::step()
-## * Use suppressPackageStartupMessages() to eliminate package startup messages</code></pre>
+## * Dig deeper into tidy modeling with R at https://www.tmwr.org</code></pre>
 <pre class="r"><code>library(dplyr) #data manipulation
 library(here) #setting pathways for saving files</code></pre>
 <pre><code>## here() starts at C:/Data/Github/MADA/CARTERCOLEMAN_MADA_PROJECT</code></pre>
@@ -225,6 +235,7 @@ library(glmnet) #Model fitting</code></pre>
 ## 
 ##     expand, pack, unpack</code></pre>
 <pre><code>## Loaded glmnet 4.1-3</code></pre>
+<pre class="r"><code>library(knitr) #saving tables</code></pre>
 </div>
 <div id="load-data" class="section level3">
 <h3>Load Data</h3>
@@ -625,55 +636,55 @@ ecfu_turb_fit &lt;-
 <pre><code>## # A tibble: 2 x 5
 ##   term              estimate std.error statistic  p.value
 ##   &lt;chr&gt;                &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-## 1 (Intercept)        15.8       2.18       7.22  7.64e-10
-## 2 conductivity.uscm   0.0264    0.0268     0.985 3.29e- 1</code></pre>
+## 1 (Intercept)        19.6       1.89      10.4   2.34e-15
+## 2 conductivity.uscm  -0.0140    0.0233    -0.600 5.50e- 1</code></pre>
 <pre class="r"><code>bs_ecfu_fit %&gt;% 
   extract_fit_parsnip() %&gt;% 
   tidy()</code></pre>
 <pre><code>## # A tibble: 2 x 5
-##   term        estimate std.error statistic  p.value
-##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-## 1 (Intercept) 18.9       1.00        18.8  8.67e-28
-## 2 e.coli.cfu  -0.00263   0.00141     -1.87 6.59e- 2</code></pre>
+##   term         estimate std.error statistic  p.value
+##   &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+## 1 (Intercept) 18.7       0.826       22.7   2.72e-32
+## 2 e.coli.cfu  -0.000312  0.000750    -0.416 6.79e- 1</code></pre>
 <pre class="r"><code>bs_no3_fit %&gt;% 
   extract_fit_parsnip() %&gt;% 
   tidy()</code></pre>
 <pre><code>## # A tibble: 2 x 5
 ##   term        estimate std.error statistic  p.value
 ##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-## 1 (Intercept)   17.2       0.866     19.9  4.15e-29
-## 2 no3.mgL        0.235     0.147      1.60 1.15e- 1</code></pre>
+## 1 (Intercept)   18.3       0.782    23.4   4.23e-33
+## 2 no3.mgL        0.114     0.131     0.866 3.90e- 1</code></pre>
 <pre class="r"><code>bs_turb_fit %&gt;% 
   extract_fit_parsnip() %&gt;% 
   tidy()</code></pre>
 <pre><code>## # A tibble: 2 x 5
 ##   term          estimate std.error statistic  p.value
 ##   &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-## 1 (Intercept)    16.9       1.13       15.0  1.44e-22
-## 2 turbidity.ntu   0.0885    0.0780      1.13 2.61e- 1</code></pre>
+## 1 (Intercept)    17.8       1.05       16.9  2.56e-25
+## 2 turbidity.ntu   0.0865    0.0839      1.03 3.06e- 1</code></pre>
 <pre class="r"><code>ecfu_con_fit %&gt;% 
   extract_fit_parsnip() %&gt;% 
   tidy()</code></pre>
 <pre><code>## # A tibble: 1 x 5
-##   term        estimate std.error statistic      p.value
-##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;        &lt;dbl&gt;
-## 1 (Intercept)     429.      70.5      6.09 0.0000000677</code></pre>
+##   term        estimate std.error statistic   p.value
+##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+## 1 (Intercept)     513.      121.      4.25 0.0000709</code></pre>
 <pre class="r"><code>ecfu_no3_fit %&gt;% 
   extract_fit_parsnip() %&gt;% 
   tidy()</code></pre>
 <pre><code>## # A tibble: 2 x 5
-##   term        estimate std.error statistic      p.value
-##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;        &lt;dbl&gt;
-## 1 (Intercept)    461.       75.6      6.10 0.0000000693
-## 2 no3.mgL        -14.6      12.8     -1.14 0.259</code></pre>
+##   term        estimate std.error statistic  p.value
+##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+## 1 (Intercept)   530.       131.      4.05  0.000141
+## 2 no3.mgL        -7.57      22.0    -0.345 0.732</code></pre>
 <pre class="r"><code>ecfu_turb_fit %&gt;% 
   extract_fit_parsnip() %&gt;% 
   tidy()</code></pre>
 <pre><code>## # A tibble: 2 x 5
 ##   term          estimate std.error statistic p.value
 ##   &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
-## 1 (Intercept)      318.      96.4       3.31 0.00156
-## 2 turbidity.ntu     11.1      6.67      1.66 0.102</code></pre>
+## 1 (Intercept)      287.      172.       1.67  0.100 
+## 2 turbidity.ntu     25.0      13.7      1.82  0.0734</code></pre>
 <p></br></p>
 <div id="using-workflows-to-make-predictions-in-the-train-data-set." class="section level4">
 <h4>Using Workflows to Make Predictions in the train data set.</h4>
@@ -709,43 +720,43 @@ ecfu_turb_aug &lt;-
 <pre><code>## # A tibble: 1 x 3
 ##   .metric .estimator .estimate
 ##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-## 1 rmse    standard        6.52</code></pre>
+## 1 rmse    standard        5.84</code></pre>
 <pre class="r"><code>bs_ecfu_aug %&gt;%
   rmse(truth = biological_score, .pred)</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   .metric .estimator .estimate
 ##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-## 1 rmse    standard        6.40</code></pre>
+## 1 rmse    standard        5.85</code></pre>
 <pre class="r"><code>bs_no3_aug %&gt;%
   rmse(truth = biological_score, .pred)</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   .metric .estimator .estimate
 ##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-## 1 rmse    standard        6.44</code></pre>
+## 1 rmse    standard        5.82</code></pre>
 <pre class="r"><code>bs_turb_aug %&gt;%
   rmse(truth = biological_score, .pred)</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   .metric .estimator .estimate
 ##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-## 1 rmse    standard        6.51</code></pre>
+## 1 rmse    standard        5.81</code></pre>
 <pre class="r"><code>ecfu_con_aug %&gt;%
   rmse(truth = e.coli.cfu, .pred)</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   .metric .estimator .estimate
 ##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-## 1 rmse    standard        568.</code></pre>
+## 1 rmse    standard        974.</code></pre>
 <pre class="r"><code>ecfu_no3_aug %&gt;%
   rmse(truth = e.coli.cfu, .pred)</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   .metric .estimator .estimate
 ##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-## 1 rmse    standard        563.</code></pre>
+## 1 rmse    standard        973.</code></pre>
 <pre class="r"><code>ecfu_turb_aug %&gt;%
   rmse(truth = e.coli.cfu, .pred)</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   .metric .estimator .estimate
 ##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-## 1 rmse    standard        556.</code></pre>
+## 1 rmse    standard        950.</code></pre>
 <p></br></p>
 <p>#####Analysis here#####</p>
 <p></br></p>
@@ -789,57 +800,57 @@ ecfu_turb_fit_test &lt;-
   extract_fit_parsnip() %&gt;% 
   tidy()</code></pre>
 <pre><code>## # A tibble: 2 x 5
-##   term              estimate std.error statistic       p.value
-##   &lt;chr&gt;                &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;         &lt;dbl&gt;
-## 1 (Intercept)         32.1      3.10       10.3  0.00000000180
-## 2 conductivity.uscm   -0.199    0.0406     -4.91 0.0000839</code></pre>
+##   term              estimate std.error statistic p.value
+##   &lt;chr&gt;                &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+## 1 (Intercept)        17.8       6.25       2.85  0.00983
+## 2 conductivity.uscm  -0.0348    0.0802    -0.434 0.669</code></pre>
 <pre class="r"><code>bs_ecfu_fit_test %&gt;% 
   extract_fit_parsnip() %&gt;% 
   tidy()</code></pre>
 <pre><code>## # A tibble: 2 x 5
-##   term         estimate std.error statistic       p.value
-##   &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;         &lt;dbl&gt;
-## 1 (Intercept) 17.6        1.75       10.0   0.00000000296
-## 2 e.coli.cfu   0.000134   0.00103     0.130 0.898</code></pre>
+##   term        estimate std.error statistic     p.value
+##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;       &lt;dbl&gt;
+## 1 (Intercept) 16.7       2.26         7.37 0.000000401
+## 2 e.coli.cfu  -0.00267   0.00257     -1.04 0.310</code></pre>
 <pre class="r"><code>bs_no3_fit_test %&gt;% 
   extract_fit_parsnip() %&gt;% 
   tidy()</code></pre>
 <pre><code>## # A tibble: 2 x 5
-##   term        estimate std.error statistic  p.value
-##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-## 1 (Intercept)   19.3       1.80      10.7  9.43e-10
-## 2 no3.mgL       -0.881     0.586     -1.50 1.49e- 1</code></pre>
+##   term        estimate std.error statistic    p.value
+##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+## 1 (Intercept)   13.7       2.27       6.03 0.00000674
+## 2 no3.mgL        0.886     0.836      1.06 0.302</code></pre>
 <pre class="r"><code>bs_turb_fit_test %&gt;% 
   extract_fit_parsnip() %&gt;% 
   tidy()</code></pre>
 <pre><code>## # A tibble: 2 x 5
 ##   term          estimate std.error statistic    p.value
 ##   &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
-## 1 (Intercept)     15.3       2.28       6.72 0.00000153
-## 2 turbidity.ntu    0.345     0.247      1.40 0.178</code></pre>
+## 1 (Intercept)     13.6       2.28       5.96 0.00000797
+## 2 turbidity.ntu    0.166     0.147      1.12 0.275</code></pre>
 <pre class="r"><code>ecfu_con_fit_test %&gt;% 
   extract_fit_parsnip() %&gt;% 
   tidy()</code></pre>
 <pre><code>## # A tibble: 1 x 5
 ##   term        estimate std.error statistic p.value
 ##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
-## 1 (Intercept)     800.      328.      2.44  0.0236</code></pre>
+## 1 (Intercept)     549.      151.      3.64 0.00153</code></pre>
 <pre class="r"><code>ecfu_no3_fit_test %&gt;% 
   extract_fit_parsnip() %&gt;% 
   tidy()</code></pre>
 <pre><code>## # A tibble: 2 x 5
 ##   term        estimate std.error statistic p.value
 ##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
-## 1 (Intercept)    686.       408.     1.68    0.108
-## 2 no3.mgL         64.7      133.     0.486   0.633</code></pre>
+## 1 (Intercept)    669.      194.      3.45  0.00251
+## 2 no3.mgL        -70.4      71.2    -0.989 0.334</code></pre>
 <pre class="r"><code>ecfu_turb_fit_test %&gt;% 
   extract_fit_parsnip() %&gt;% 
   tidy()</code></pre>
 <pre><code>## # A tibble: 2 x 5
 ##   term          estimate std.error statistic p.value
 ##   &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
-## 1 (Intercept)       4.02     461.    0.00873  0.993 
-## 2 turbidity.ntu   113.        50.0   2.27     0.0343</code></pre>
+## 1 (Intercept)     465.       198.      2.35   0.0290
+## 2 turbidity.ntu     8.54      12.8     0.669  0.511</code></pre>
 <p>#####Analysis here#####</p>
 <p></br></p>
 <div id="using-workflows-to-make-predictions-in-the-test-data-set." class="section level4">
@@ -875,43 +886,43 @@ ecfu_turb_aug_test &lt;-
 <pre><code>## # A tibble: 1 x 3
 ##   .metric .estimator .estimate
 ##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-## 1 rmse    standard        7.45</code></pre>
+## 1 rmse    standard        8.78</code></pre>
 <pre class="r"><code>bs_ecfu_aug_test %&gt;%
   rmse(truth = biological_score, .pred)</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   .metric .estimator .estimate
 ##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-## 1 rmse    standard        8.13</code></pre>
+## 1 rmse    standard        8.76</code></pre>
 <pre class="r"><code>bs_no3_aug_test %&gt;%
   rmse(truth = biological_score, .pred)</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   .metric .estimator .estimate
 ##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-## 1 rmse    standard        7.14</code></pre>
+## 1 rmse    standard        8.73</code></pre>
 <pre class="r"><code>bs_turb_aug_test %&gt;%
   rmse(truth = biological_score, .pred)</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   .metric .estimator .estimate
 ##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-## 1 rmse    standard        6.79</code></pre>
+## 1 rmse    standard        8.65</code></pre>
 <pre class="r"><code>ecfu_con_aug_test %&gt;%
   rmse(truth = e.coli.cfu, .pred)</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   .metric .estimator .estimate
 ##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-## 1 rmse    standard       1546.</code></pre>
+## 1 rmse    standard        692.</code></pre>
 <pre class="r"><code>ecfu_no3_aug_test %&gt;%
   rmse(truth = e.coli.cfu, .pred)</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   .metric .estimator .estimate
 ##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-## 1 rmse    standard       1549.</code></pre>
+## 1 rmse    standard        688.</code></pre>
 <pre class="r"><code>ecfu_turb_aug_test %&gt;%
   rmse(truth = e.coli.cfu, .pred)</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   .metric .estimator .estimate
 ##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-## 1 rmse    standard       1527.</code></pre>
+## 1 rmse    standard        711.</code></pre>
 <p></br></p>
 </div>
 <div id="save-significant-test-and-train-linear-models-to-the-results-folder." class="section level4">
@@ -1022,12 +1033,41 @@ BS.recipe</code></pre>
 <p><em>Calculate RMSE for the Null linear model.</em></p>
 <pre class="r"><code>Null_Met &lt;- collect_metrics(null_lm)
 
+Null_Met &lt;- kable(Null_Met,
+      caption = &quot;Root Mean Squared Error and Standard Deviation for Biological Score Null Linear Model&quot;)
+
 Null_Met</code></pre>
-<pre><code>## # A tibble: 2 x 6
-##   .metric .estimator   mean     n std_err .config             
-##   &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-## 1 rmse    standard     6.63    25   0.131 Preprocessor1_Model1
-## 2 rsq     standard   NaN        0  NA     Preprocessor1_Model1</code></pre>
+<table>
+<caption>Root Mean Squared Error and Standard Deviation for Biological Score Null Linear Model</caption>
+<thead>
+<tr class="header">
+<th align="left">.metric</th>
+<th align="left">.estimator</th>
+<th align="right">mean</th>
+<th align="right">n</th>
+<th align="right">std_err</th>
+<th align="left">.config</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">rmse</td>
+<td align="left">standard</td>
+<td align="right">6.628388</td>
+<td align="right">25</td>
+<td align="right">0.1313342</td>
+<td align="left">Preprocessor1_Model1</td>
+</tr>
+<tr class="even">
+<td align="left">rsq</td>
+<td align="left">standard</td>
+<td align="right">NaN</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="left">Preprocessor1_Model1</td>
+</tr>
+</tbody>
+</table>
 <p><em>RMSE = 6.63, with a standard deviation of 0.13. This will serve as our check to test our models against latter on.</em></p>
 <p></br></p>
 </div>
