@@ -1,1 +1,1 @@
-This folder contains my raw data and processed data for my analysis. Instructions for both uploading raw data and clean / wrangling / exploring / analyzing the data can be found in the "code" folder.
+This folder contains both my raw data and processed data for my analysis. Instructions for both uploading raw data and clean / wrangling / exploring / analyzing the data can be found in the "code" folder.

@@ -25,8 +25,6 @@ csl: ../apa.csl
 
 _When monitoring freshwater streams, stream health is typically measured by its physical characteristics (chemistry, surrounding land use area, channelization, etc.); Microbial (fecal indicator), and ecology (diversity of indicator macroinvertebrates). However, these categories are usually analyzed separately to assess stream health. As such, my question is how well are these parameters correlated with each other. Specifically, can you use one of the indicators mentioned (physical, microbial, and ecological) to describe both of the others to make a statement about overall stream health?_
 
-</br>
-
 _I would expect that because the all three are correlated with urbanization/anthropocentric impact, a negative impact in one indicator category will indicate a correlated negative impact in the other categories. The only caveat is that because level of noise in stream health data, significant correlations may be difficult to find._
 
 </br>
