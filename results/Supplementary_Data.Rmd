@@ -71,6 +71,82 @@ ecfu_BICO_location <- here::here("results", "BICO_ecfu_lm.png")
 include_graphics(ecfu_BICO_location)
 ```
 
+</br>
+
+_Figure 7: Scatter plot of LASSO model predicted Biological Score data as a function of actual Biological Score from the MIDO data set._
+```{r}
+lasso_prediction_plot_BS_location <- here::here("results", "lasso_prediction_plot_BS.png")
+
+include_graphics(lasso_prediction_plot_BS_location)
+```
+</br>
+
+_Figure 8: Scatter plot of LASSO model predicted E. coli cfu data as a function of actual E. coli cfu from the MIDO data set._
+```{r}
+lasso_prediction_plot_EC_location <- here::here("results", "lasso_prediction_plot_EC.png")
+
+include_graphics(lasso_prediction_plot_EC_location)
+```
+
+</br>
+
+```{r}
+MIDO_ecfu_con_fit_location <- here::here("results", "MIDO_ecfu_con_fit.png")
+
+include_graphics(MIDO_ecfu_con_fit_location)
+```
+</br>
+_Table 1_
+
+</br>
+
+```{r}
+MIDO_ecfu_con_RMSE_location <- here::here("results", "MIDO_ecfu_con_RMSE.png")
+
+include_graphics(MIDO_ecfu_con_RMSE_location)
+```
+</br>
+_Table 2_
+
+</br>
+
+```{r}
+Null_bs_RMSE_location <- here::here("results", "Null_bs_RMSE.png")
+
+include_graphics(Null_bs_RMSE_location)
+```
+</br>
+_Table 3_
+
+</br>
+
+```{r}
+Null_ecfu_RMSE_location <- here::here("results", "Null_ecfu_RMSE.png")
+
+include_graphics(Null_ecfu_RMSE_location)
+```
+</br>
+_Table 4_
+
+</br>
+
+```{r}
+MIDO_bs_LASSO_top5_location <- here::here("results", "MIDO_bs_LASSO_top5.png")
+
+include_graphics(MIDO_bs_LASSO_top5_location)
+```
+</br>
+_Table 5_
+
+</br>
+
+```{r}
+MIDO_ecfu_LASSO_top5_location <- here::here("results", "MIDO_ecfu_LASSO_top5.png")
+
+include_graphics(MIDO_ecfu_LASSO_top5_location)
+```
+</br>
+_Table 6_
 
 
 
