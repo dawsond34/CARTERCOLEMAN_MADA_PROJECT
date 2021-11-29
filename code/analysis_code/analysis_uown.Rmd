@@ -36,14 +36,15 @@ _Conduct LASSO modeling of linear regression between Biological Score and all ot
 
 ### Required packages
 ```{r}
-library(tidyverse) #Working with multiple Tidy packages
-library(tidymodels) #Building models
+library(tidyverse) #working with multiple Tidy packages
+library(tidymodels) #building models
 library(dplyr) #data manipulation
 library(here) #setting pathways for saving files
-library(rpart) #Model fitting
-library(ranger) #Model fitting
-library(glmnet) #Model fitting
+library(rpart) #model fitting
+library(ranger) #model fitting
+library(glmnet) #model fitting
 library(knitr) #saving tables
+library(gridExtra) #grouping figure outputs together
 ```
 
 
@@ -217,27 +218,39 @@ sample_size_BICO <- nrow(BICO)
 </br>
 
 _Outcome: Biological Score_
-```{r}
+```{r, fig.width=10}
+#Set save file path parameters
+png(filename = here::here("results", "MIDO_BS_OUT.png"), width = 10, height = 6, units = "in", res = 300)
+
+par(mfrow=c(2,2)) #group plots together using base r
+
 #Creates a dataframe that stores the cook's distance analysis of influential data points.
 bs_con_cd <- cooks.distance(bs_con_lm)
-plot(bs_con_cd, pch="*", cex=2, main="MIDO: Conductivity vs. Biological Score with Outliers")
+bs_con_cd_plot <- plot(bs_con_cd, pch="*", cex=2, main="MIDO: Conductivity vs. Biological Score with Outliers")
 abline(h = 4/sample_size_MIDO, col="red")
 
 bs_ecfu_cd <- cooks.distance(bs_ecfu_lm)
-plot(bs_ecfu_cd, pch="*", cex=2, main="MIDO: E. coli CFU vs. Biological Score with Outliers")
+bs_ecfu_cd_plot <- plot(bs_ecfu_cd, pch="*", cex=2, main="MIDO: E. coli CFU vs. Biological Score with Outliers")
 abline(h = 4/sample_size_MIDO, col="red")
 
 bs_no3_cd <- cooks.distance(bs_no3_lm)
-plot(bs_no3_cd, pch="*", cex=2, main="MIDO: NO3 vs. Biological Score with Outliers")
+bs_no3_cd_plot <- plot(bs_no3_cd, pch="*", cex=2, main="MIDO: NO3 vs. Biological Score with Outliers")
 abline(h = 4/sample_size_MIDO, col="red")
 
 bs_turb_cd <- cooks.distance(bs_turb_lm)
-plot(bs_turb_cd, pch="*", cex=2, main="MIDO: Turbidity vs. Biological Score with Outliers")
+bs_turb_cd_plot <- plot(bs_turb_cd, pch="*", cex=2, main="MIDO: Turbidity vs. Biological Score with Outliers")
 abline(h = 4/sample_size_MIDO, col="red")
+
+dev.off()
 ```
 </br>
 _Outcome: E.coli CFU_
-```{r}
+```{r, fig.width=10}
+#Set save file path parameters
+png(filename = here::here("results", "MIDO_EC_OUT.png"), width = 10, height = 6, units = "in", res = 300)
+
+par(mfrow=c(2,2)) #group plots together using base r
+
 #Creates a dataframe that stores the cook's distance analysis of influential data points.
 ecfu_con_cd <- cooks.distance(ecfu_con_lm)
 plot(ecfu_con_cd, pch="*", cex=2, main="MIDO: Conductivity vs. E. coli CFU with Outliers")
@@ -250,6 +263,8 @@ abline(h = 4/sample_size_MIDO, col="red")
 ecfu_turb_cd <- cooks.distance(ecfu_turb_lm)
 plot(ecfu_turb_cd, pch="*", cex=2, main="MIDO: Turbidity vs. E. coli CFU with Outliers")
 abline(h = 4/sample_size_MIDO, col="red")
+
+dev.off()
 ```
 </br>
 
@@ -257,7 +272,12 @@ abline(h = 4/sample_size_MIDO, col="red")
 
 </br>
 _Outcome: Biological Score_
-```{r}
+```{r, fig.width=10}
+#Set save file path parameters
+png(filename = here::here("results", "NORO_BS_OUT.png"), width = 10, height = 6, units = "in", res = 300)
+
+par(mfrow=c(2,2)) #group plots together using base r
+
 #Creates a dataframe that stores the cook's distance analysis of influential data points.
 n_bs_con_cd <- cooks.distance(n_bs_con_lm)
 plot(n_bs_con_cd, pch="*", cex=2, main="NORO: Conductivity vs. Biological Score with Outliers")
@@ -274,11 +294,18 @@ abline(h = 4/sample_size_NORO, col="red")
 n_bs_turb_cd <- cooks.distance(n_bs_turb_lm)
 plot(n_bs_turb_cd, pch="*", cex=2, main="NORO: Turbidity vs. Biological Score with Outliers")
 abline(h = 4/sample_size_NORO, col="red")
+
+dev.off()
 ```
 </br>
 
 _Outcome: E.coli CFU_
-```{r}
+```{r, fig.width=10}
+#Set save file path parameters
+png(filename = here::here("results", "NORO_EC_OUT.png"), width = 10, height = 6, units = "in", res = 300)
+
+par(mfrow=c(2,2)) #group plots together using base r
+
 #Creates a dataframe that stores the cook's distance analysis of influential data points.
 n_ecfu_con_cd <- cooks.distance(n_ecfu_con_lm)
 plot(n_ecfu_con_cd, pch="*", cex=2, main="NORO: Conductivity vs. E. coli CFU with Outliers")
@@ -291,6 +318,8 @@ abline(h = 4/sample_size_NORO, col="red")
 n_ecfu_turb_cd <- cooks.distance(n_ecfu_turb_lm)
 plot(n_ecfu_turb_cd, pch="*", cex=2, main="NORO: Turbidity vs. E. coli CFU with Outliers")
 abline(h = 4/sample_size_NORO, col="red")
+
+dev.off()
 ```
 </br>
 
@@ -299,7 +328,12 @@ abline(h = 4/sample_size_NORO, col="red")
 </br>
 
 _Outcome: Biological Score_
-```{r}
+```{r, fig.width=10}
+#Set save file path parameters
+png(filename = here::here("results", "BICO_BS_OUT.png"), width = 10, height = 6, units = "in", res = 300)
+
+par(mfrow=c(2,2)) #group plots together using base r
+
 #Creates a dataframe that stores the cook's distance analysis of influential data points.
 b_bs_con_cd <- cooks.distance(b_bs_con_lm)
 plot(b_bs_con_cd, pch="*", cex=2, main="BICO: Conductivity vs. Biological Score with Outliers")
@@ -316,11 +350,18 @@ abline(h = 4/sample_size_BICO, col="red")
 b_bs_turb_cd <- cooks.distance(bs_turb_lm)
 plot(b_bs_turb_cd, pch="*", cex=2, main="BICO: Turbidity vs. Biological Score with Outliers")
 abline(h = 4/sample_size_BICO, col="red")
+
+dev.off()
 ```
 </br>
 
 _Outcome: E.coli CFU_
-```{r}
+```{r, fig.width=10}
+#Set save file path parameters
+png(filename = here::here("results", "BICO_EC_OUT.png"), width = 10, height = 6, units = "in", res = 300)
+
+par(mfrow=c(2,2)) #group plots together using base r
+
 #Creates a dataframe that stores the cook's distance analysis of influential data points.
 b_ecfu_con_cd <- cooks.distance(b_ecfu_con_lm)
 plot(b_ecfu_con_cd, pch="*", cex=2, main="BICO: Conductivity vs. E. coli CFU with Outliers")
@@ -333,6 +374,8 @@ abline(h = 4/sample_size_BICO, col="red")
 b_ecfu_turb_cd <- cooks.distance(b_ecfu_turb_lm)
 plot(b_ecfu_turb_cd, pch="*", cex=2, main="BICO: Turbidity vs. E. coli CFU with Outliers")
 abline(h = 4/sample_size_BICO, col="red")
+
+dev.off()
 ```
 </br>
 
@@ -688,11 +731,14 @@ ecfu_turb_aug_test %>%
 
 #### Save significant Test and Train linear models to the results folder.
 ```{r}
+
 #Create a table for E. coli (cfu) as a function of Conductivity Linear Fit Model in the MIDO train data.
 MIDO_ECFU_Con_fit <- kable(as.tibble(Ecoli_con_lm),
-      caption = "Linear Fit Model: E. Coli CFU predicted by Conductivity in the Trained MIDO Data Set")
+      caption = "Table 1: Linear Fit Model: E. Coli CFU predicted by Conductivity in the Trained MIDO Data Set")
 
-MIDO_ECFU_Con_fit
+MIDO_ECFU_Con_location <- here::here("results", "MIDO_ECFU_Con_location.RDS")
+
+saveRDS(MIDO_ECFU_Con_fit, MIDO_ECFU_Con_location)
 
 #Create a table for E. coli (cfu) as a function of Conductivity Linear Fit Model in the MIDO test data.
 
@@ -708,9 +754,11 @@ MIDO_ECFU_Con_fit_test
 ```{r}
 #Create a table for E. coli (cfu) as a function of Conductivity Linear Fit Model RMSE in the MIDO train data.
 MIDO_ECFU_Con_RMSE <- kable(as.tibble(Ecoli_con_RMSE),
-      caption = "Root Mean Square Error: E. Coli CFU predicted by Conductivity in the Trained MIDO Data Set")
+      caption = "Table 2: Root Mean Square Error: E. Coli CFU predicted by Conductivity in the Trained MIDO Data Set")
 
-MIDO_ECFU_Con_RMSE
+MIDO_ECFU_Con_RMSE_location <- here::here("results", "MIDO_ECFU_Con_RMSE_location.RDS")
+
+saveRDS(MIDO_ECFU_Con_RMSE, MIDO_ECFU_Con_RMSE_location)
 
 #Create a table for E. coli (cfu) as a function of Conductivity Linear Fit Model RMSE in the MIDO test data.
 
@@ -801,9 +849,11 @@ _Calculate RMSE for the Null linear model._
 Null_Met <- collect_metrics(null_lm)
 
 Null_Met <- kable(Null_Met,
-      caption = "Root Mean Squared Error and Standard Deviation for Biological Score Null Linear Model")
+      caption = "Table 3: Root Mean Squared Error and Standard Deviation for Biological Score Null Linear Model")
 
-Null_Met
+BS_Null_Mod_Location <- here::here("results", "BS_Null_Mod_Location.RDS")
+
+saveRDS(Null_Met, BS_Null_Mod_Location)
 ```
 _RMSE = 6.63, with a standard deviation of 0.13. This will serve as our check to test our models against latter on._
 
@@ -874,9 +924,11 @@ best_lasso <- lasso_resample %>%
   select_best()
 
 Best_LASSO_BS <- kable(top_five_bs,
-      caption = "Top 5 best performing LASSO Models for Biological Score as the Outcome")
+      caption = "Table 4: Top 5 best performing LASSO Models for Biological Score as the Outcome")
 
-Best_LASSO_BS
+Best_LASSO_BS_location <- here::here("results", "Best_LASSO_BS_location.RDS")
+
+saveRDS(Best_LASSO_BS, Best_LASSO_BS_location)
 ```
 
 _This shows that model 47 is the best performing models (RMSE = 6.50; STE = 0.16). However, it doesn't really perform any better than the null model, making it a bad fit to the data._
@@ -1004,9 +1056,11 @@ Null_Met_EC <- collect_metrics(null_lm_EC)
 
 
 Null_Met_EC <- kable(Null_Met_EC,
-      caption = "Root Mean Squared Error and Standard Deviation for E. coli cfu Null Linear Model")
+      caption = "Table 5: Root Mean Squared Error and Standard Deviation for E. coli cfu Null Linear Model")
 
-Null_Met_EC
+Null_Met_EC_location <- here::here("results", "Null_Met_EC_location.RDS")
+
+saveRDS(Null_Met_EC, Null_Met_EC_location)
 ```
 _RMSE = 0.52, with a standard deviation of 0.014. This will serve as our check to test our models against latter on._
 
@@ -1075,9 +1129,11 @@ best_lasso_EC <- lasso_resample_EC %>%
   select_best()
 
 Best_LASSO_EC <- kable(top_five_ec,
-      caption = "Top 5 best performing LASSO Models for E. coli cfu as the Outcome")
+      caption = "Table 6: Top 5 best performing LASSO Models for E. coli cfu as the Outcome")
 
-Best_LASSO_EC
+Best_LASSO_EC_location <- here::here("results", "Best_LASSO_EC_location.RDS")
+
+saveRDS(Best_LASSO_EC, Best_LASSO_EC_location)
 ```
 
 _This shows that model 41 is the best performing models (RMSE = 0.50; STE = 0.012). However, it doesn't really perform any better than the null model, making it a bad fit to the data._

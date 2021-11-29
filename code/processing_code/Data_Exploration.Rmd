@@ -12,13 +12,13 @@ output: word_document
 
 #### First, we need to load all the libraries we will need.
 ```{r}
-library(dplyr) 
-library(here)
-library(tidyverse)
-library(tidyr)
-library(readr)
-library(stringr)
-library(gridExtra)
+library(dplyr) #data manipulation
+library(here) #setting pathways for saving files
+library(tidyverse) #Working with multiple Tidy packages
+library(tidyr) #data cleaning
+library(readr) #read in files
+library(stringr) #working with strings
+library(gridExtra) #grouping figure outputs together
 ```
 
 #### Loading the data from the processing script. Note that because you are loading a library at the beginning, it may either take a while or take several tries.

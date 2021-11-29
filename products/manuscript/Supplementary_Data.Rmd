@@ -1,0 +1,84 @@
+---
+title: "Supplementary Data"
+author: "C. Coleman"
+date: "11/12/2021"
+output:
+  word_document: default
+  html_document: default
+---
+
+#### The following markdown serves as the supplementary materials for the UOWN Stream Health Indicators Project. Included materials are all figures relevant to my manuscript and were derived from the analysis code.
+
+
+```{r,echo=FALSE, results='hide', message=FALSE}
+library(knitr)    # For knitting document and include_graphics function
+library(ggplot2)  # For plotting
+library(png)      # For grabbing the dimensions of png files
+```
+
+_Supplementary Figure 1: Plots of biological score versus conductivity, E. coli cfu, nitrate concentration, and turbidity for the MIDO site._
+```{r, echo=FALSE, message=FALSE}
+bs_MIDO_location <- here::here("results", "MIDO_bs_lm.png")
+
+include_graphics(bs_MIDO_location)
+```
+
+_Supplementary Figure 2: Plots of biological score versus conductivity, E. coli cfu, nitrate concentration, and turbidity for the NORO site._
+```{r, echo=FALSE, message=FALSE}
+bs_NORO_location <- here::here("results", "NORO_bs_lm.png")
+
+include_graphics(bs_NORO_location)
+```
+
+_Supplementary Figure 3: Plots of biological score versus conductivity, E. coli cfu, nitrate concentration, and turbidity for the BICO site._
+```{r, echo=FALSE, message=FALSE}
+bs_BICO_location <- here::here("results", "BICO_bs_lm.png")
+
+include_graphics(bs_BICO_location)
+```
+
+_Supplementary Figure 4: Cook Distance plot for MIDO Biological Score data. Plots show no score >1, suggesting no outliers in the data._
+```{r, echo=FALSE, message=FALSE}
+MIDO_BS_OUT_location <- here::here("results", "MIDO_BS_OUT.png")
+
+include_graphics(MIDO_BS_OUT_location)
+```
+
+_Supplementary Figure 5: Cook Distance plot for MIDO E. coli cfu data. Plots show no score >1, suggesting no outliers in the data._
+```{r, echo=FALSE, message=FALSE}
+MIDO_EC_OUT_location <- here::here("results", "MIDO_EC_OUT.png")
+
+include_graphics(MIDO_EC_OUT_location)
+```
+
+_Supplementary Figure 6: Cook Distance plot for NORO Biological Score data. Only plot showing score >1 is biological score as a function of Nitrate (NO3) concentration. All other plots have a score <1, suggesting no outliers in the data._
+```{r, echo=FALSE, message=FALSE}
+NORO_BS_OUT_location <- here::here("results", "NORO_BS_OUT.png")
+
+include_graphics(NORO_BS_OUT_location)
+```
+
+_Supplementary Figure 7: Cook Distance plot for NORO E. coli cfu data. Only plot showing score >1 is E. coli cfu as a function of Nitrate (NO3) concentration. All other plots have a score <1, suggesting no outliers in the data._
+```{r, echo=FALSE, message=FALSE}
+NORO_EC_OUT_location <- here::here("results", "NORO_EC_OUT.png")
+
+include_graphics(NORO_EC_OUT_location)
+```
+
+_Supplementary Figure 8: Cook Distance plot for BICO Biological Score data. Plots show no score >1, suggesting no outliers in the data._
+```{r, echo=FALSE, message=FALSE}
+BICO_BS_OUT_location <- here::here("results", "BICO_BS_OUT.png")
+
+include_graphics(BICO_BS_OUT_location)
+```
+
+_Supplementary Figure 9: Cook Distance plot for BICO E. coli cfu data. Only plot showing score >1 is E. coli cfu as a function of Turbidity. All other plots have a score <1, suggesting no outliers in the data._
+```{r, echo=FALSE, message=FALSE}
+BICO_EC_OUT_location <- here::here("results", "BICO_EC_OUT.png")
+
+include_graphics(BICO_EC_OUT_location)
+```
+
+
+
+
