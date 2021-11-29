@@ -5,7 +5,7 @@ date: "9/16/2021"
 output: html_document
 ---
 
-_Please run the "MADA_Project" file in this folder to ensure use of the correct working directory._
+# *Please run the "MADA_Project" file in this folder to ensure use of the correct working directory.*
 
 # Overview: Comparison of Stream Health indicators
 
@@ -28,15 +28,24 @@ rawdata <- readxl::read_excel(data_location)
 glimpse(data_cleaning)
 ```
 
+# Getting Started From Scratch
 
-### Question:
+This file contains four main sub-folders titled "code", "data", "products", and "results". The "code" folder contains all the code used to process, explore and analyze raw data from the UOWN Site. The "data" folder contains the raw and processed data for this project. The processed data was produced using the processing script located in the "data" folder. The "results" folder contains all figures and tables created from the data exploration and analysis code, located in the "code" folder. Finally, the "product" folder contains the final manuscript file, supplementary file, and all accompanying files used to create a reference library in Bibtex and format the manuscript word document.
 
-#### When monitoring freshwater streams, stream health is typically measured by its physical characteristics (chemistry, surrounding land use area, channelization, etc.); Microbial (fecal indicator), and ecology (diversity of indicator macroinvertebrates). However, these categories are usually analyzed separately to assess stream health. As such, my question is how well are these parameters correlated with each other. Specifically, can you use one of the indicators mentioned (physical, microbial, and ecological) to describe both of the others to make a statement about overall stream health?
+# Workflow:
+
+1. Once in the R project file located in this file, navigate into the "code" file. Here, run the processing script to create the processed data. This will now be located in the "data" folder, in the sub folder "processed_data".
+
+2. In the "code" file, run the "data_exploration" file to run the introductory linear relationships and create figures showing variable relationships. The .RMD file will save figures in the "results folder".
+
+3. Next, run the "analysis_uown" file to run the outlier and MIDO LASSO linear analysis models. Results from this file will be saved in the "results" file.
+
+4. Finally, run the "Manuscript" and "Supplementary_Data" files to produce the final article and supplementary report for the UOWN data analysis project.
+
+# Question:
+
+When monitoring freshwater streams, stream health is typically measured by its physical characteristics (chemistry, surrounding land use area, channelization, etc.); Microbial (fecal indicator), and ecology (diversity of indicator macroinvertebrates). However, these categories are usually analyzed separately to assess stream health. As such, my question is how well are these parameters correlated with each other. Specifically, can you use one of the indicators mentioned (physical, microbial, and ecological) to describe both of the others to make a statement about overall stream health?
 
 I would expect that because the all three are correlated with urbanization/anthropocentric impact, a negative impact in one indicator category will indicate a correlated negative impact in the other categories. The only caveat is that because level of noise in stream health data, significant correlations may be difficult to find.
-
-#As much as you know, suggest how you will analyze it. At this stage in the course, we haven’t covered analysis approaches yet, so you can keep things vague and non-technical here.
-
-UOWN has provided a great deal of data dating back to 2003. First,I will need to wrangle missing data values that are a result of inconsistent sampling efforts. This will make the data easier to work with and narrow down a time frame for the data that is consistent and free of sampling bias. Next, I will analyze and compare trends in the change of chemical (conductivity, turbidity,	po4.mgL,	no3.mgL); ecological(Biological Score); and microbial indicator data (e.coli CFU). Generally speaking, increases in chemical properties like conductivity, turbidity,	po4.mgL,	no3.mgL and microbial indicator abundance (i.e. ecoli CFU) indicate decreased stream health. While a decrease in biological score indicates decrease in stream health. Next, since biological scores are used as a measure of broader ecological health, I will run t-tests on if the other factors significantly effect biological score. Finally, I will test the interaction of all three via multivariate analysis.
 
 
