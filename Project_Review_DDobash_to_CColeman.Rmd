@@ -1,0 +1,168 @@
+---
+title: Project Review- Dawson Dobash for Carter Coleman
+date: "`r file.mtime(knitr::current_input())`"
+#bibliography: ../media/references.bib
+output: 
+  html_document:
+    toc_depth: 3
+    number_sections: true
+---
+
+# Overview
+
+Title of project: "Relationship Between Common Stream Health Indicators"
+
+Name of project author(s): Carter Coleman
+
+Name of project reviewer: Dawson Dobash
+
+
+# Specific project content evaluation
+Evaluate the different parts of the project by filling in the sections below.
+
+
+## Background, Context and Motivation
+How well is the context of the project described? Is a comprehensive background, including summary of previous/related work given? Is the project well placed into the context of existing work (including proper referencing of existing work). Is it clear why the project was undertaken and what new information it hopes to provide?
+
+### Feedback and Comments
+
+The context of the project is described very well with a lot of background and understanding of what this project is going to be about and what impact it will have. Many related work examples are presented and has a place in this project. It is clear why the project was undertaken. I would say just go back through the introduction as some sentences could be more clear. 
+
+### Summary assessment (PICK ONE, DELETE THE OTHERS)
+* strong contextualization and motivation
+
+
+## Question description
+How well and clear are the question(s)/hypotheses the project aims to address described? Is it clear how the questions relate to the data?
+
+
+### Feedback and Comments
+
+Although you mention the question within the introduction section, I would suggest giving  the question its own small section so for those reader that just want to know what you are trying to do can go to that question section. The question itself is clearly related to the data and the information presented within the introduction of this project. 
+
+### Summary assessment
+* question/hypotheses somewhat explained
+
+
+
+## Data description
+How well is the data overall described? Is the source provided? Is a codebook or other meta-information available that makes it clear what the data is? 
+
+### Feedback and Comments
+
+You gave a list of variables you want to use, but maybe add some type of description for each as the reader will not know what some of these are or how it is measured such as the biological score. I would also provide a link to the website for fast access to the data. Your general desription within the data aquisition is good. I would just add what I mentioned above. 
+
+### Summary assessment
+* source and overall structure of data somewhat explained
+
+
+
+## Data wrangling and exploratory analysis
+How well is the data cleaned/processed and explored? Are all steps reasonable and well explained? Are alternatives discussed and considered? Are meaningful exploratory results shown (e.g. in the supplementary materials)?
+
+### Feedback and Comments
+
+You did a lot of cleaning to your data and applying different techniques due to the amount of missing values you had. I like how you had the steps on what you did for cleaning the data as well. For the exploratory results, I would ask Dr. Handel but I dont know if referencing to specific supplement figures is okay in the manuscript or not. Maybe if you want to reference them and if needed to talk about, I would suggest putting the figures in the manuscript. I would also try to reference the specific tables and figures from your manuscript when talking about them in paragraphs such as "In Table/Figure [blank], ..." or "According to Table/Figure [blank],..". I would also, within your supplementary file, describe some of your results. It looks like all of the exploratory results are meaningful for this project. 
+
+### Summary assessment
+* some weaknesses in wrangling and exploratory component
+
+
+
+
+## Appropriateness of Analysis
+Were the analysis methods appropriate for the data? Was the analysis done properly? Were different components of the analysis (e.g. performance measure, variable selection, data pre-processing, model evaluation) done in the best way possible and explained well?
+
+### Feedback and Comments
+
+I think your analyses were appropriate for the data and it was done properly from what I can tell. You included variable selection and other components to your analysis. All of the analyses were explained well and you explained what you did and why you did them.
+
+### Summary assessment
+* strong and reasonable analysis
+
+## Presentation
+How well are results presented? Are tables and figures easy to read and understand? Are the main figures/tables publication level quality? 
+
+### Feedback and Comments
+
+I would suggest having a separate section for the main analysis and exploratory analysis. I think overall the figures and tables look okay and good enough. It could be improved to and presented in a more professional way however. For example figures 4 and 5 hae a mixture of titles. One is from the coding while the other is from the R markdown. I would choose one or the other. 
+
+### Summary assessment
+* results are very well presented
+
+
+## Discussion/Conclusions
+Are the study findings properly discussed? Are strengths and limitations acknowledged? Are findings interpreted properly?
+
+### Feedback and Comments
+
+I just want to give you a heads up that you gave yourself if you forgot. Within the discussion section you told yourself "[find citation for lack of reliability for citizen science data]." You have this I believe 3 times? I just dont want you to forget. Overall though, the discussion and conclusion looks good and you explained the limitations to the study. Were there any strengths to this study? If so, I would include them.
+
+### Summary assessment
+* strong, complete and clear discussion
+
+
+## Further comments
+
+I would go through your writing within the manuscript as some grammatical errors are present. Also this is just a suggestion like all of my comments but one thing that kind of confused me was within you methods section, you a a paragraph un the methods title but then within 3.3 and 3.4 you have more methods. I would try to combine the paragraph right under methods to the other two sections of 3.3 and 3.4 because I think what your vision was is making that a general description of the methods then going into more detail in 3.3 and 3.4 but for me it was kind of confusing especially when it is split up by the data import and cleaning section.
+
+
+
+# Overall project content evaluation
+Evaluate overall features of the project  by filling in the sections below.
+
+
+## Structure
+Is the project well structured? Are files in well labeled folders? Do files have reasonable names? Are all "junk" files not needed for analysis/reproduction removed? By just looking at files and folders, can you get an idea of how things fit together?
+
+### Feedback and Comments
+
+Overall the project is structured well with very explicit read me files. The names of the folders are reasonable. The only thing I can think of is maybe putting the data exploration file within the analysis code folder or its separate. I think if you want to keep this in this file, maybe rename it to something like processing and exploration? Overall the read me files makes sure you know where everything is. All junk files are deleted. 
+
+### Summary assessment
+* well structured
+
+
+## Documentation 
+How well is the project documented? Are you able to understand each step of the whole analysis, each decision that was made, and each line of code? Is enough information provided as comments in code or as part of Rmd files? 
+
+### Feedback and Comments
+
+I am going to do this by files. First, within your processing script, comments are very thorough and you explained why you did what you did. For the data exploration file, you did a good job commenting on what each block of code is doing and when you run a model, you added some statistics below it. Finally for the analysis uown file, if I want to be stingy on this, the only thing I would possibly add some small commentary about some results when going along with the code not just the end of a part particularly part 1. But overall analysis uown file is very well commented. 
+
+### Summary assessment
+* fully and well documented
+
+
+
+## Reproducibility
+Are all results fully reproducible? Is documentation provided which clearly explains how to reproduce things, and does it work without the need for any manual intervention? Are you able to re-run the whole analysis without having to do manual interventions/edits?
+
+### Feedback and Comments
+
+All of the files are reproducible without manual interventions. The read me files are very detailed and gave step by step directions on how to reproduce the results. 
+
+
+### Summary assessment
+* fully reproducible without issues
+
+
+## Thoroughness
+How thorough was the overall study? Were alternatives (e.g. different ways of processing the data or different models) considered? Were alternatives discussed? Were the questions/hypotheses fully and thoroughly addressed?
+
+### Feedback and Comments
+
+Knowing that you had to do separate analyses, you did a good thorough job of making sure each model/analysis was worked out all the way. The only thing is you only used LASSO for the machine learning technique but with the amount of work you already put in and your explanation of the LASSO model is addressing the question well. You did mention that you wanted to look at outliers based on your data and the exploratory analysis. 
+
+### Summary assessment
+* strong level of thorougness
+
+
+## Further comments
+
+I would skim through some of your writing as within some files, I see some misspelled words here and there. Also just a comment on your read me files, those are probably the best I have seen. They are very detailed and no questions are asked on what to do after reading those. Great Job overall. Looks like you put in a lot of work!
+
+
+
+
+
